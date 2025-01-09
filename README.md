@@ -178,11 +178,10 @@ Have questions or need assistance? Reach out to us:
 
 *Thank you for using **ExcaliburAI - Civitai Prompt Extractor**! We strive to continuously improve and provide the best experience for our users.*
 
-```
 
 ---
 
   ![License](https://img.shields.io/badge/license-MIT-blue.svg)
   ![Version](https://img.shields.io/badge/version-1.2.0-brightgreen.svg)
-  ```
+
 
