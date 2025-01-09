@@ -13,6 +13,7 @@
 - [📸 Screenshots](#-screenshots)
 - [🔧 Development](#-development)
 - [🤝 Contributing](#-contributing)
+- [📚 Credits](#-credits)
 - [📜 License](#-license)
 - [📞 Support](#-support)
 
@@ -159,6 +160,10 @@ Contributions are welcome! Follow these steps to contribute to **ExcaliburAI - C
 - **Code Quality**: Ensure your code follows best practices and is well-documented.
 - **Testing**: Test your changes thoroughly before submitting.
 - **Respect the Community**: Be respectful and constructive in your interactions.
+
+## 📚 Credits
+
+exif-js: JavaScript library for reading EXIF data from images.
 
 ## 📜 License
 
