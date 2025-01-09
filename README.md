@@ -100,15 +100,13 @@ ExcaliburAI-Prompt-Extractor/
 │   ├── popup.png
 │   └── options.png
 │
-├── src/
-│   ├── background.js
-│   ├── content.js
-│   ├── exif.js
-│   ├── popup.html
-│   ├── popup.js
-│   ├── options.html
-│   └── options.js
-│
+├── background.js
+├── content.js
+├── exif.js
+├── popup.html
+├── popup.js
+├── options.html
+├── options.js
 ├── manifest.json
 ├── README.md
 └── LICENSE
