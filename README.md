@@ -164,7 +164,7 @@ Contributions are welcome! Follow these steps to contribute to **ExcaliburAI - C
 
 ## 📜 License
 
-Distributed under the [MIT License](./LICENSE).
+Distributed under the [Proprietary License](./LICENSE)
 
 ## 📞 Support
 
