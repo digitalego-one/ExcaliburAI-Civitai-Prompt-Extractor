@@ -36,7 +36,7 @@
 
 1. **Clone the Repository**:
    ```bash
-   git clone [https://github.com/yourusername/ExcaliburAI-Prompt-Extractor.git](https://github.com/digitalego-one/ExcaliburAI-Civitai-Prompt-Extractor)
+   git clone https://github.com/digitalego-one/ExcaliburAI-Civitai-Prompt-Extractor
    ```
 2. **Navigate to the Directory**:
    ```bash
