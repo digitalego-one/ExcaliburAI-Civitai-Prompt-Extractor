@@ -1,4 +1,4 @@
-# ExcaliburAI - Civitai Prompt Extractor v1.2.0
+# ExcaliburAI - Civitai Prompt Extractor [v1.2.0]
 
 ![ExcaliburAI Logo](./icons/icon128.png)
 
