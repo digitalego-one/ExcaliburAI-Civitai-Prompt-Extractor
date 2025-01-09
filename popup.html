@@ -9,29 +9,66 @@
             font-family: Arial, sans-serif;
             min-width: 300px;
             padding: 10px;
+            box-sizing: border-box;
         }
-        #prompt {
-            white-space: pre-wrap;
+        .section {
+            margin-bottom: 15px;
+        }
+        .section h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .section-content {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
             word-wrap: break-word;
-            margin-bottom: 10px;
+            white-space: pre-wrap;
+            max-height: 150px;
+            overflow-y: auto;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Enhanced font support */
+            font-size: 14px;
+            color: #555;
         }
-        #copyButton {
+        .copy-button {
+            margin-top: 5px;
             padding: 5px 10px;
             background-color: #1d88d5;
             color: white;
             border: none;
+            border-radius: 3px;
             cursor: pointer;
+            font-size: 14px;
         }
-        #copyButton:hover {
+        .copy-button:hover {
             background-color: #2d9ded;
         }
     </style>
 </head>
 <body>
     <h3>Last Copied Prompt</h3>
-    <div id="prompt">No prompt copied yet.</div>
-    <button id="copyButton">Copy Again</button>
+    
+    <!-- Prompt Section -->
+    <div class="section">
+        <h3>Prompt</h3>
+        <div id="prompt" class="section-content">No prompt copied yet.</div>
+        <button id="copyPromptButton" class="copy-button">Copy Prompt</button>
+    </div>
+    
+    <!-- Negative Prompt Section -->
+    <div class="section">
+        <h3>Negative Prompt</h3>
+        <div id="negativePrompt" class="section-content">No negative prompt copied yet.</div>
+        <button id="copyNegativePromptButton" class="copy-button">Copy Negative Prompt</button>
+    </div>
+    
+    <!-- Other Metadata Section -->
+    <div class="section">
+        <h3>Other Metadata</h3>
+        <div id="otherMetadata" class="section-content">No metadata copied yet.</div>
+        <button id="copyMetadataButton" class="copy-button">Copy Metadata</button>
+    </div>
 
     <script src="popup.js"></script>
 </body>
