@@ -1,0 +1,53 @@
+<!-- options.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Copy Prompt If Any - Options</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .option-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 5px;
+        }
+        button {
+            padding: 5px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h2>Extension Options</h2>
+    <div class="option-group">
+        <label>
+            <input type="checkbox" id="enableNotifications" />
+            Enable Notifications
+        </label>
+    </div>
+    <div class="option-group">
+        <label for="allowedDomains">Allowed Image Domains (comma-separated):</label>
+        <input type="text" id="allowedDomains" placeholder="e.g., example.com, anotherdomain.com" />
+    </div>
+    <button id="saveButton">Save</button>
+
+    <script src="options.js"></script>
+</body>
+</html>

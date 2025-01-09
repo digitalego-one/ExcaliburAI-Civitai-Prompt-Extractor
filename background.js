@@ -2,6 +2,9 @@
 
 importScripts('exif.js');
 
+// In-memory cache for EXIF data
+const exifCache = new Map();
+
 // Create the context menu when the extension is installed
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
@@ -16,23 +19,56 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === "copyPrompt" && info.srcUrl && tab.id) {
     try {
       console.log("Attempting to fetch image:", info.srcUrl);
-      const response = await fetch(info.srcUrl);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+      // Retrieve settings
+      const settings = await getSettings();
+      const { allowedDomains, enableNotifications } = settings;
+
+      // Check if the image's domain is allowed
+      if (allowedDomains.length > 0) {
+        const imageUrl = new URL(info.srcUrl);
+        if (!allowedDomains.includes(imageUrl.hostname)) {
+          if (enableNotifications) {
+            chrome.notifications.create({
+              type: 'basic',
+              iconUrl: 'icons/icon48.png',
+              title: 'Copy Prompt If Any',
+              message: `Domain "${imageUrl.hostname}" is not allowed.`
+            });
+          }
+          return;
+        }
       }
 
-      const arrayBuffer = await response.arrayBuffer();
-      console.log("ArrayBuffer fetched. Type:", Object.prototype.toString.call(arrayBuffer));
+      let exifData;
 
-      // Ensure arrayBuffer is an ArrayBuffer
-      if (!(arrayBuffer instanceof ArrayBuffer)) {
-        throw new TypeError('First argument to DataView constructor must be an ArrayBuffer');
+      // Check if EXIF data is cached
+      if (exifCache.has(info.srcUrl)) {
+        console.log("Using cached EXIF data for:", info.srcUrl);
+        exifData = exifCache.get(info.srcUrl);
+      } else {
+        // Fetch the image
+        const response = await fetch(info.srcUrl);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        console.log("ArrayBuffer fetched. Type:", Object.prototype.toString.call(arrayBuffer));
+
+        // Ensure arrayBuffer is an ArrayBuffer
+        if (!(arrayBuffer instanceof ArrayBuffer)) {
+          throw new TypeError('First argument to DataView constructor must be an ArrayBuffer');
+        }
+
+        // Read EXIF data from the image
+        exifData = EXIF.readFromBinaryFile(arrayBuffer);
+        console.log("EXIF data:", exifData);
+
+        // Cache the EXIF data
+        exifCache.set(info.srcUrl, exifData);
       }
-
-      // Read EXIF data from the image
-      const exifData = EXIF.readFromBinaryFile(arrayBuffer);
-      console.log("EXIF data:", exifData);
 
       const userComment = exifData.UserComment || exifData.userComment;
       console.log("UserComment:", userComment);
@@ -42,52 +78,69 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         console.log("Decoded userComment:", decodedText);
 
         if (decodedText && decodedText.trim() !== "" && decodedText !== "UNICODE") {
+          // Store the last copied prompt in storage
+          chrome.storage.local.set({ lastCopiedPrompt: decodedText }, () => {
+            console.log('Last copied prompt stored:', decodedText);
+          });
+
           // Inject script to copy to clipboard
           await injectCopyScript(tab.id, decodedText);
 
           console.log("Injected copy script successfully.");
 
-          // Show success notification
-          chrome.notifications.create({
-            type: 'basic',
-            iconUrl: 'icons/icon48.png',
-            title: 'Copy Prompt If Any',
-            message: 'Copied to clipboard'
-          });
+          // Show success notification if enabled
+          if (enableNotifications) {
+            chrome.notifications.create({
+              type: 'basic',
+              iconUrl: 'icons/icon48.png',
+              title: 'Copy Prompt If Any',
+              message: 'Copied to clipboard'
+            });
+          }
         } else if (decodedText === "UNICODE") {
           // Show notification: No prompts found
+          if (enableNotifications) {
+            chrome.notifications.create({
+              type: 'basic',
+              iconUrl: 'icons/icon48.png',
+              title: 'Copy Prompt If Any',
+              message: 'No prompts found'
+            });
+          }
+        } else {
+          // Show notification: Failed to decode
+          if (enableNotifications) {
+            chrome.notifications.create({
+              type: 'basic',
+              iconUrl: 'icons/icon48.png',
+              title: 'Copy Prompt If Any',
+              message: 'Failed to decode the prompt'
+            });
+          }
+        }
+      } else {
+        // Show notification: No prompts found
+        if (enableNotifications) {
           chrome.notifications.create({
             type: 'basic',
             iconUrl: 'icons/icon48.png',
             title: 'Copy Prompt If Any',
             message: 'No prompts found'
           });
-        } else {
-          // Show notification: Failed to decode
+        }
+      }
+    } catch (error) {
+      console.error('Error processing image:', error);
+      // Show error notification if enabled
+      chrome.storage.local.get(['enableNotifications'], (result) => {
+        if (result.enableNotifications !== false) {
           chrome.notifications.create({
             type: 'basic',
             iconUrl: 'icons/icon48.png',
             title: 'Copy Prompt If Any',
-            message: 'Failed to decode the prompt'
+            message: 'An error occurred while processing the image.'
           });
         }
-      } else {
-        // Show notification: No prompts found
-        chrome.notifications.create({
-          type: 'basic',
-          iconUrl: 'icons/icon48.png',
-          title: 'Copy Prompt If Any',
-          message: 'No prompts found'
-        });
-      }
-    } catch (error) {
-      console.error('Error processing image:', error);
-      // Show error notification
-      chrome.notifications.create({
-        type: 'basic',
-        iconUrl: 'icons/icon48.png',
-        title: 'Copy Prompt If Any',
-        message: 'An error occurred while processing the image.'
       });
     }
   }
@@ -178,4 +231,20 @@ function copyTextToClipboard(text) {
   } catch (err) {
     console.error('Failed to copy:', err);
   }
+}
+
+// Function to get user settings
+function getSettings() {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get(['enableNotifications', 'allowedDomains'], (result) => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve({
+          enableNotifications: result.enableNotifications !== false, // Default to true
+          allowedDomains: result.allowedDomains || []
+        });
+      }
+    });
+  });
 }
