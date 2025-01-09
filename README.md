@@ -163,7 +163,7 @@ Contributions are welcome! Follow these steps to contribute to **ExcaliburAI - C
 
 ## 📚 Credits
 
-exif-js: JavaScript library for reading EXIF data from images.
+- **[exif-js](https://github.com/exif-js/exif-js)**: JavaScript library for reading EXIF data from images.
 
 ## 📜 License
 
