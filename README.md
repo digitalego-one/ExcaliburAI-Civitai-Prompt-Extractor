@@ -181,7 +181,7 @@ Have questions or need assistance? Reach out to us:
 
 ---
 
-  ![License](https://img.shields.io/badge/license-MIT-blue.svg)
+  ![License](https://img.shields.io/badge/license-PROPRIETARY-blue.svg)
   ![Version](https://img.shields.io/badge/version-1.2.0-brightgreen.svg)
 
 
