@@ -16,6 +16,8 @@
 - [📚 Credits](#-credits)
 - [📜 License](#-license)
 - [📞 Support](#-support)
+- [🎉 Now Live on Chrome Web Store!](#-now-live-on-chrome-web-store!)
+- [🚀 Support us on Product Hunt](#-support-us-on-product-hunt)
 
 ## 📖 Features
 
@@ -176,6 +178,15 @@ Have questions or need assistance? Reach out to us:
 - **Email**: [hello@digitalego.one](mailto:hello@digitalego.one)
 - **Issues**: [GitHub Issues](https://github.com/digitalego-one/ExcaliburAI-Civitai-Prompt-Extractor/issues)
 - **Website**: [https://www.excaliburai.top](https://excaliburai.top/)
+
+
+## 🎉 Now Live on Chrome Web Store!
+
+Excited to use **ExcaliburAI - Civitai Prompt Extractor**? You can install it directly from the [Chrome Web Store](https://chromewebstore.google.com/detail/excaliburai-civitai-promp/jdkgelpgnofafbgbbmlgngehmlkllaah).
+
+## 🚀 Support us on Product Hunt
+
+We recently launched on [Product Hunt](https://www.producthunt.com/posts/excaliburai-civitai-prompt-extractor). Your upvote will make a significant difference and help us reach a wider audience. Check it out and support us by leaving an upvote!
 
 ---
 
