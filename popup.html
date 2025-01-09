@@ -1,0 +1,38 @@
+<!-- popup.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"> <!-- Ensure UTF-8 encoding -->
+    <title>Last Copied Prompt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            min-width: 300px;
+            padding: 10px;
+        }
+        #prompt {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-bottom: 10px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Enhanced font support */
+        }
+        #copyButton {
+            padding: 5px 10px;
+            background-color: #1d88d5;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #copyButton:hover {
+            background-color: #2d9ded;
+        }
+    </style>
+</head>
+<body>
+    <h3>Last Copied Prompt</h3>
+    <div id="prompt">No prompt copied yet.</div>
+    <button id="copyButton">Copy Again</button>
+
+    <script src="popup.js"></script>
+</body>
+</html>

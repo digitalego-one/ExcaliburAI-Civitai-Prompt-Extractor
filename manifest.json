@@ -1,28 +1,43 @@
 {
   "manifest_version": 3,
   "name": "ExcaliburAI - Civitai Prompt Extractor",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Copies prompt and metadata in clipboard with 1 click from Ai-generated images, if there is any.",
   "permissions": [
     "contextMenus",
     "scripting",
     "clipboardWrite",
-    "notifications"
+    "notifications",
+    "storage"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "https://civitai.com/*"
   ],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": [
+        "https://civitai.com/*"
+      ],
       "js": ["exif.js", "content.js"],
       "all_frames": true,
       "run_at": "document_idle"
     }
   ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
