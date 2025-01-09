@@ -2,38 +2,77 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     const promptDiv = document.getElementById('prompt');
-    const copyButton = document.getElementById('copyButton');
+    const negativePromptDiv = document.getElementById('negativePrompt');
+    const otherMetadataDiv = document.getElementById('otherMetadata');
+    
+    const copyPromptButton = document.getElementById('copyPromptButton');
+    const copyNegativePromptButton = document.getElementById('copyNegativePromptButton');
+    const copyMetadataButton = document.getElementById('copyMetadataButton');
 
     // Retrieve the last copied prompt from storage
     chrome.storage.local.get(['lastCopiedPrompt'], (result) => {
         if (result.lastCopiedPrompt) {
             const sanitizedText = sanitizeText(result.lastCopiedPrompt);
-            promptDiv.textContent = sanitizedText;
-
-            // Log character codes for debugging
-            logCharacterCodes(sanitizedText);
+            const parsedData = parsePromptData(sanitizedText);
+            
+            // Display the parsed sections
+            promptDiv.textContent = parsedData.prompt || 'No prompt found.';
+            negativePromptDiv.textContent = parsedData.negativePrompt || 'No negative prompt found.';
+            otherMetadataDiv.textContent = parsedData.otherMetadata || 'No metadata found.';
         } else {
             promptDiv.textContent = 'No prompt copied yet.';
+            negativePromptDiv.textContent = 'No negative prompt copied yet.';
+            otherMetadataDiv.textContent = 'No metadata copied yet.';
         }
     });
 
-    // Copy the prompt again when the button is clicked
-    copyButton.addEventListener('click', () => {
-        chrome.storage.local.get(['lastCopiedPrompt'], (result) => {
-            if (result.lastCopiedPrompt) {
-                const sanitizedText = sanitizeText(result.lastCopiedPrompt);
-                copyTextToClipboard(sanitizedText)
-                    .then(() => {
-                        alert('Prompt copied to clipboard.');
-                    })
-                    .catch((err) => {
-                        console.error('Failed to copy:', err);
-                        alert('Failed to copy prompt.');
-                    });
-            } else {
-                alert('No prompt to copy.');
-            }
-        });
+    // Event listeners for Copy buttons
+    copyPromptButton.addEventListener('click', () => {
+        const text = promptDiv.textContent;
+        if (text && text !== 'No prompt found.') {
+            copyTextToClipboard(text)
+                .then(() => {
+                    alert('Prompt copied to clipboard.');
+                })
+                .catch((err) => {
+                    console.error('Failed to copy Prompt:', err);
+                    alert('Failed to copy Prompt.');
+                });
+        } else {
+            alert('No prompt to copy.');
+        }
+    });
+
+    copyNegativePromptButton.addEventListener('click', () => {
+        const text = negativePromptDiv.textContent;
+        if (text && text !== 'No negative prompt found.') {
+            copyTextToClipboard(text)
+                .then(() => {
+                    alert('Negative Prompt copied to clipboard.');
+                })
+                .catch((err) => {
+                    console.error('Failed to copy Negative Prompt:', err);
+                    alert('Failed to copy Negative Prompt.');
+                });
+        } else {
+            alert('No negative prompt to copy.');
+        }
+    });
+
+    copyMetadataButton.addEventListener('click', () => {
+        const text = otherMetadataDiv.textContent;
+        if (text && text !== 'No metadata found.') {
+            copyTextToClipboard(text)
+                .then(() => {
+                    alert('Metadata copied to clipboard.');
+                })
+                .catch((err) => {
+                    console.error('Failed to copy Metadata:', err);
+                    alert('Failed to copy Metadata.');
+                });
+        } else {
+            alert('No metadata to copy.');
+        }
     });
 });
 
@@ -45,13 +84,35 @@ function sanitizeText(text) {
         .replace(/[\u0000-\u001F\u007F-\u009F]/g, ''); // Remove other control characters
 }
 
-// Function to log character codes of the text
-function logCharacterCodes(text) {
-    const charCodes = [];
-    for (let i = 0; i < text.length; i++) {
-        charCodes.push(text.charCodeAt(i).toString(16).toUpperCase().padStart(4, '0'));
+// Function to parse the prompt data into sections
+function parsePromptData(text) {
+    const result = {
+        prompt: '',
+        negativePrompt: '',
+        otherMetadata: ''
+    };
+
+    // Use case-insensitive regex to find sections
+    const unicodeRegex = /UNICODE\s*(.*?)\s*Negative prompt:/i;
+    const negativePromptRegex = /Negative prompt:\s*(.*?)\s*Steps:/i;
+    const otherMetadataRegex = /Steps:\s*(.*)/i;
+
+    const unicodeMatch = text.match(unicodeRegex);
+    if (unicodeMatch && unicodeMatch[1]) {
+        result.prompt = unicodeMatch[1].trim();
     }
-    console.log('Character Codes:', charCodes.join(' '));
+
+    const negativePromptMatch = text.match(negativePromptRegex);
+    if (negativePromptMatch && negativePromptMatch[1]) {
+        result.negativePrompt = negativePromptMatch[1].trim();
+    }
+
+    const otherMetadataMatch = text.match(otherMetadataRegex);
+    if (otherMetadataMatch && otherMetadataMatch[1]) {
+        result.otherMetadata = otherMetadataMatch[1].trim();
+    }
+
+    return result;
 }
 
 // Function to copy text to the clipboard using the Clipboard API
