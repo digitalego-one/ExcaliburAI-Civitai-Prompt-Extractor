@@ -85,10 +85,13 @@ Access the extension's settings to customize its behavior:
 
 ## 📸 Screenshots
 
-![Popup Interface](./screenshots/popup.png)
+![Context menu](./screenshots/menu.jpg)
+*Easy-to-find Context Menu Button*
+
+![Popup Interface](./screenshots/popup.jpg)
 *Clean and organized popup displaying Prompt, Negative Prompt, and Other Metadata.*
 
-![Options Page](./screenshots/options.png)
+![Options Page](./screenshots/options.jpg)
 *Settings page allowing customization of notifications and allowed domains.*
 
 ## 🔧 Development
