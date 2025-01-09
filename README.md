@@ -16,7 +16,7 @@
 - [📚 Credits](#-credits)
 - [📜 License](#-license)
 - [📞 Support](#-support)
-- [🎉 Now Live on Chrome Web Store!](#-now-live-on-chrome-web-store!)
+- [🎉 Now Live on Chrome Web Store!](#-now-live-on-chrome-web-store)
 - [🚀 Support us on Product Hunt](#-support-us-on-product-hunt)
 
 ## 📖 Features
