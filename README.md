@@ -172,7 +172,7 @@ Have questions or need assistance? Reach out to us:
 
 - **Email**: [hello@digitalego.one](mailto:hello@digitalego.one)
 - **Issues**: [GitHub Issues](https://github.com/digitalego-one/ExcaliburAI-Civitai-Prompt-Extractor/issues)
-- **Website**: [https://www.yourdomain.com](https://excaliburai.top/)
+- **Website**: [https://www.excaliburai.top](https://excaliburai.top/)
 
 ---
 
