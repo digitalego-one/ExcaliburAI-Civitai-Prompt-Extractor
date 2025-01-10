@@ -111,8 +111,9 @@ ExcaliburAI-Prompt-Extractor/
 │   └── icon128.png
 │
 ├── screenshots/
-│   ├── popup.png
-│   └── options.png
+│   ├── menu.jpg
+│   ├── popup.jpg
+│   └── options.jpg
 │
 ├── background.js
 ├── content.js
