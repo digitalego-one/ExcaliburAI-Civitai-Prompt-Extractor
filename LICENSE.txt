@@ -7,7 +7,7 @@ of this software and associated documentation files (the "Software"), to use
 the Software for personal, non-commercial purposes only, subject to the following conditions:
 
 1. The Software, or any derivative works from it, is intended for personal use only and may not
-be distributed, in original or modified form, for free or for a fee, without
+   be distributed, in original or modified form, for free or for a fee, without
    explicit written permission from the copyright holder.
 2. The Software is provided "as is", without warranty of any kind, express or implied, including
    but not limited to the warranties of merchantability, fitness for a particular purpose, and
