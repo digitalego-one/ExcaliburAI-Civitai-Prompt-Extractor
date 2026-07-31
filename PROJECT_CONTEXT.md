@@ -38,7 +38,7 @@ Popup/options version `1.11.0` renders negative prompt and technical metadata as
 
 Version `1.13.0` records negative prompt and technical metadata as unresolved and removes both from the popup. The popup is positive-only, resets stored session data at startup and per extraction, refreshes on storage changes, and supports trailing-binary JPEG ComfyUI JSON.
 
-Version `1.14.0` uses logo-inspired blue action buttons in popup and Options.
+Version `2.0` uses logo-inspired blue action buttons in popup and Options; the manifest version is `2.0.0` and the release branch is `v2.0`.
 
 ComfyUI workflow links are resolved before direct text-node fallback so both positive and negative CLIP text nodes remain available to the popup.
 

@@ -1,4 +1,4 @@
-# ExcaliburAI - Civitai Prompt Extractor [v1.14.0]
+# ExcaliburAI - Civitai Prompt Extractor [v2.0]
 
 ![ExcaliburAI Logo](./icons/icon128.png)
 
@@ -22,7 +22,7 @@ Right-click an image, choose **Copy Prompt If Any**, and the prompt is copied to
 - [📜 License](#-license)
 - [📞 Support](#-support)
 
-## 🎉 What is new in v1.14.0
+## 🎉 What is new in v2.0
 
 - **🔵 New visual language**: a clean white popup with logo-inspired blue action buttons.
 - **🖼️ Positive-prompt-first popup**: the interface now focuses on the one result the extension can deliver reliably.
@@ -71,7 +71,7 @@ Full-size images and previews can both work. The important difference is not the
 3. Click **Load Temporary Add-on**.
 4. Select `manifest.json` inside the `extension` folder.
 
-For store submission, use the release archive prepared for `v1.14.0`. See [RELEASE.md](./RELEASE.md).
+For store submission, use the release archive prepared for `v2.0`. See [RELEASE.md](./RELEASE.md).
 
 ## 🖥️ Usage
 
@@ -183,7 +183,7 @@ Distributed under the [Proprietary License](./LICENSE.txt).
 ## 📞 Support
 
 - **GitHub Issues**: [Report a problem or suggest an improvement](https://github.com/digitalego-one/ExcaliburAI-Civitai-Prompt-Extractor/issues)
-- **Website**: [excaliburai.top](https://excaliburai.top/)
+- **Website**: [digitalego.one](https://digitalego.one/)
 - **Email**: [hello@digitalego.one](mailto:hello@digitalego.one)
 
 ---
@@ -191,4 +191,4 @@ Distributed under the [Proprietary License](./LICENSE.txt).
 *Thank you for using **ExcaliburAI - Civitai Prompt Extractor**. Keep creating, keep experimenting, and keep your best prompts close.*
 
 ![License](https://img.shields.io/badge/license-PROPRIETARY-blue.svg)
-![Version](https://img.shields.io/badge/version-1.14.0-brightgreen.svg)
+![Version](https://img.shields.io/badge/version-2.0-brightgreen.svg)

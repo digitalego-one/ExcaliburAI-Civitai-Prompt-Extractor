@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0 - 2026-07-31
+
+- Promoted the stable release to the new `v2.0` line for Chrome and Firefox.
+- Updated release-facing version references to `2.0` / `2.0.0`.
+- Updated the project website link to `https://digitalego.one/`.
+- Kept the positive-prompt-focused popup and documented backlog unchanged.
+
 ## 1.14.0 - 2026-07-31
 
 - Changed popup and Options action buttons from green/teal to logo-inspired blue.
