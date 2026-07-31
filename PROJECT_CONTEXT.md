@@ -30,6 +30,8 @@ Popup version `1.7.0` uses a white application background, removes the bottom co
 
 Popup version `1.8.0` preserves negative prompts and technical metadata in partial results, including ComfyUI workflow sampler fields; rollback backup is `v1.7.0-stable`.
 
+Parser version `1.9.0` resolves ComfyUI UI workflows under `workflow.nodes`, follows reroute links, and prioritizes complete workflow metadata over incomplete prompt maps.
+
 ComfyUI workflow links are resolved before direct text-node fallback so both positive and negative CLIP text nodes remain available to the popup.
 
 ## Workspace folders

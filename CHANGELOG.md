@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.0 - 2026-07-31
+
+- Inspected PNG ComfyUI `prompt` and `workflow` metadata across the fixture corpus.
+- Resolved UI workflow nodes stored under `workflow.nodes` and followed reroute links to negative CLIP text nodes.
+- Prefer the complete workflow over incomplete prompt maps so a negative-only prompt node is not misclassified as positive.
+
 ## 1.8.0 - 2026-07-31
 
 - Preserved `v1.7.0` as `v1.7.0-stable` before changing extraction behavior.

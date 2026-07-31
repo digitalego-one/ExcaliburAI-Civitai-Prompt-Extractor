@@ -177,10 +177,19 @@ function extractMetadata(arrayBuffer) {
   const bytes = new Uint8Array(arrayBuffer);
   const png = readPngText(arrayBuffer);
   if (Object.keys(png).length) {
+    if (png.workflow) {
+      const workflowResult = parseComfyWorkflow(png.workflow);
+      if (workflowResult && workflowResult.positivePrompt) return workflowResult;
+    }
     for (const key of ['parameters', 'prompt', 'workflow']) {
+      if (key === 'workflow') continue;
       if (!png[key]) continue;
       const result = normalizeMetadata(png[key], key === 'parameters' ? 'png-text' : 'comfy-workflow');
       if (result && result.positivePrompt) return result;
+    }
+    if (png.workflow) {
+      const workflowResult = parseComfyWorkflow(png.workflow);
+      if (workflowResult && workflowResult.positivePrompt) return workflowResult;
     }
   }
   if (decodeBytes(bytes.slice(0, 4), 'ascii') === 'RIFF') {
@@ -257,18 +266,49 @@ function parseComfyWorkflow(workflow) {
   const rawText = typeof workflow === 'string' ? workflow : JSON.stringify(workflow);
   let graph;
   try { graph = typeof workflow === 'string' ? JSON.parse(workflow) : workflow; } catch (_) { return { positivePrompt: '', negativePrompt: '', rawText, metadataText: '', source: 'comfy-workflow', confidence: 'low' }; }
-  const nodes = Array.isArray(graph) ? Object.fromEntries(graph.map(node => [String(node.id), node])) : (graph && typeof graph === 'object' ? graph : {});
+  const nodeList = Array.isArray(graph) ? graph : (Array.isArray(graph?.nodes) ? graph.nodes : null);
+  const nodes = nodeList ? Object.fromEntries(nodeList.map(node => [String(node.id), node])) : (graph && typeof graph === 'object' ? graph : {});
   const textNodes = {};
   const promptCandidates = [];
   const promptRefs = [];
+  const outputLinks = {};
+  for (const [id, node] of Object.entries(nodes)) {
+    for (const output of Array.isArray(node?.outputs) ? node.outputs : []) {
+      for (const link of Array.isArray(output.links) ? output.links : []) outputLinks[String(link)] = id;
+    }
+  }
+  const resolveLink = (link, seen = new Set()) => {
+    const key = String(link);
+    if (seen.has(key)) return undefined;
+    seen.add(key);
+    const id = outputLinks[key];
+    if (id === undefined) return undefined;
+    const node = nodes[id];
+    if (node && /reroute/i.test(node.type || '') && Array.isArray(node.inputs)) {
+      const input = node.inputs.find(item => typeof item.link === 'number');
+      if (input) return resolveLink(input.link, seen);
+    }
+    return id;
+  };
+  const textForNode = node => {
+    if (!node) return '';
+    if (node.inputs && typeof node.inputs.text === 'string') return node.inputs.text.trim();
+    if (Array.isArray(node.widgets_values) && /(?:CLIPTextEncode|text|prompt)/i.test(`${node.type || ''} ${node.title || ''} ${node.properties?.['Node name for S&R'] || ''}`)) return String(node.widgets_values[0] || '').trim();
+    return '';
+  };
   for (const [id, node] of Object.entries(nodes)) {
     if (!node) continue;
-    const inputs = node.inputs || {};
-    const text = inputs.text || (Array.isArray(node.widgets_values) && /(?:CLIPTextEncode|text|prompt)/i.test(`${node.type || ''} ${node.properties?.['Node name for S&R'] || ''}`) ? node.widgets_values[0] : '');
+    const inputs = Array.isArray(node.inputs) ? Object.fromEntries(node.inputs.map(input => [input.name, input])) : (node.inputs || {});
+    const text = textForNode(node);
     if (typeof text === 'string') textNodes[id] = text.trim();
     for (const key of ['saved_prompt', 'resolved_prompt', 'source_prompt', 'prompt_log_line']) if (typeof inputs[key] === 'string') promptCandidates.push(inputs[key]);
     if (inputs.positive && Array.isArray(inputs.positive)) promptRefs.push({ type: 'positive', ref: inputs.positive[0] });
     if (inputs.negative && Array.isArray(inputs.negative)) promptRefs.push({ type: 'negative', ref: inputs.negative[0] });
+    for (const type of ['positive', 'negative']) {
+      const link = inputs[type] && typeof inputs[type].link === 'number' ? inputs[type].link : null;
+      const linkedNode = link === null ? null : resolveLink(link);
+      if (linkedNode !== undefined) promptRefs.push({ type, ref: linkedNode });
+    }
   }
   const positives = promptRefs.filter(x => x.type === 'positive').map(x => textNodes[x.ref]).filter(Boolean);
   const negatives = promptRefs.filter(x => x.type === 'negative').map(x => textNodes[x.ref]).filter(Boolean);
