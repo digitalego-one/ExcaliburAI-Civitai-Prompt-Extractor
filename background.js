@@ -57,6 +57,9 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         result = extractMetadata(arrayBuffer);
         metadataCache.set(info.srcUrl, result);
       }
+      if ((!result || !result.positivePrompt) && isCivitaiImageUrl(info.srcUrl)) {
+        result = await fetchCivitaiMetadata(info.srcUrl);
+      }
       if (!result || !result.positivePrompt) {
         await storeResult({ status: 'not-found', message: 'No readable positive prompt found.' });
         return;
@@ -75,6 +78,27 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
 function storeResult(result) {
   return new Promise(resolve => chrome.storage.local.set({ lastResult: result, lastCopiedPrompt: result.positivePrompt || '' }, resolve));
+}
+
+function isCivitaiImageUrl(url) {
+  try { return new URL(url).hostname.endsWith('.civitai.com'); } catch (_) { return false; }
+}
+
+async function fetchCivitaiMetadata(imageUrl) {
+  const match = imageUrl.match(/\/([0-9a-f]{8}-[0-9a-f-]{27,})\//i);
+  if (!match) return null;
+  const response = await fetch(`https://civitai.com/api/v1/images/${match[1]}`);
+  if (!response.ok) return null;
+  const data = await response.json();
+  const meta = data && data.meta;
+  if (!meta) return null;
+  return {
+    positivePrompt: String(meta.prompt || '').trim(),
+    negativePrompt: String(meta.negativePrompt || '').trim(),
+    rawText: JSON.stringify(meta, null, 2),
+    metadataText: Object.entries(meta).filter(([key]) => !/prompt/i.test(key)).map(([key, value]) => `${key}: ${value}`).join('\n'),
+    source: 'civitai-api', confidence: 'high'
+  };
 }
 
 // Function to inject a script that copies text to the clipboard

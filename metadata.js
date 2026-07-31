@@ -78,9 +78,7 @@ function normalizeMetadata(raw, source) {
       source, confidence: 'high'
     };
     if (raw.workflow) {
-      const workflow = typeof raw.workflow === 'string' ? raw.workflow : JSON.stringify(raw.workflow);
-      const prompts = [...workflow.matchAll(/(?:text|prompt|positive|negative)["']?\s*[:=]\s*["']([^"']+)/gi)].map(m => m[1]);
-      return { positivePrompt: prompts[0] || '', negativePrompt: prompts[1] || '', rawText: workflow, metadataText: '', source: 'comfy-workflow', confidence: prompts.length ? 'medium' : 'low' };
+      return parseComfyWorkflow(raw.workflow);
     }
   }
   return parseInfotext(raw);
@@ -105,8 +103,46 @@ function extractMetadata(arrayBuffer) {
 
 function decodeExifComment(value) {
   if (!value) return '';
-  if (typeof value === 'string') return value.replace(/^ASCII\0*|^UNICODE/i, '').trim();
+  if (typeof value === 'string') {
+    const cleaned = value.replace(/^ASCII\0*/, '').replace(/^UNICODE\0*/i, '');
+    return decodeUtf16String(cleaned).trim();
+  }
   const bytes = new Uint8Array(value); const prefix = decodeBytes(bytes.slice(0, 8), 'ascii');
   if (/^UNICODE/i.test(prefix)) return decodeBytes(bytes.slice(8), 'utf-16le').replace(/\0+$/, '').trim();
-  return decodeBytes(bytes.slice(8), /^ASCII/.test(prefix) ? 'ascii' : 'utf-8').replace(/\0+$/, '').trim();
+  return decodeBytes(bytes.slice(/^ASCII/.test(prefix) ? 8 : 0), /^ASCII/.test(prefix) ? 'ascii' : 'utf-8').replace(/\0+$/, '').trim();
+}
+
+function decodeUtf16String(value) {
+  if (!value) return '';
+  const hasAlternatingNulls = /(?:\0.|.\0){2,}/.test(value);
+  if (hasAlternatingNulls) {
+    const bytes = new Uint8Array(value.length * 2);
+    for (let i = 0; i < value.length; i++) { bytes[i * 2] = value.charCodeAt(i) & 255; bytes[i * 2 + 1] = value.charCodeAt(i) >> 8; }
+    return decodeBytes(bytes, 'utf-16le').replace(/\0+$/, '');
+  }
+  return value.replace(/\0+/g, '');
+}
+
+function parseComfyWorkflow(workflow) {
+  const rawText = typeof workflow === 'string' ? workflow : JSON.stringify(workflow);
+  let graph;
+  try { graph = typeof workflow === 'string' ? JSON.parse(workflow) : workflow; } catch (_) { return { positivePrompt: '', negativePrompt: '', rawText, metadataText: '', source: 'comfy-workflow', confidence: 'low' }; }
+  const nodes = graph && !Array.isArray(graph) ? graph : {};
+  const textNodes = {};
+  const promptRefs = [];
+  for (const [id, node] of Object.entries(nodes)) {
+    if (!node || !node.inputs) continue;
+    const text = node.inputs.text;
+    if (typeof text === 'string') textNodes[id] = text.trim();
+    if (node.inputs.positive && Array.isArray(node.inputs.positive)) promptRefs.push({ type: 'positive', ref: node.inputs.positive[0] });
+    if (node.inputs.negative && Array.isArray(node.inputs.negative)) promptRefs.push({ type: 'negative', ref: node.inputs.negative[0] });
+  }
+  const positives = promptRefs.filter(x => x.type === 'positive').map(x => textNodes[x.ref]).filter(Boolean);
+  const negatives = promptRefs.filter(x => x.type === 'negative').map(x => textNodes[x.ref]).filter(Boolean);
+  const allTexts = Object.values(textNodes);
+  return {
+    positivePrompt: positives[0] || (allTexts.length === 1 ? allTexts[0] : ''),
+    negativePrompt: negatives[0] || '', rawText, metadataText: '', source: 'comfy-workflow',
+    confidence: positives.length ? 'high' : (allTexts.length ? 'medium' : 'low')
+  };
 }

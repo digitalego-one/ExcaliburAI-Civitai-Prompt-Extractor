@@ -10,6 +10,9 @@
 - Updated the context-menu flow to copy only the positive prompt.
 - Updated popup copy actions to use an auto-dismiss toast instead of alerts.
 - Corrected Chrome manifest JSON and added Civitai subdomain permissions.
+- Fixed ComfyUI workflow extraction to follow KSampler positive/negative links to `CLIPTextEncode` nodes.
+- Added UTF-16 EXIF string handling to prevent mojibake in JPEG prompts.
+- Added a Civitai image API fallback for thumbnails without embedded metadata.
 
 ## Working agreement
 

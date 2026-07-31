@@ -40,10 +40,15 @@ The extractor stores `positivePrompt`, `negativePrompt`, `metadataText`, `rawTex
 ## Next engineering priorities
 
 1. Add a local fixture runner with expected positive/negative boundaries.
-2. Parse ComfyUI workflow JSON using node types and input provenance rather than a generic regex.
 3. Add Forge stealth metadata support.
 4. Add a carefully scoped Civitai page/API fallback with explicit privacy behavior.
 5. Test Chrome and Firefox packaging separately before release.
+
+## Recent bug fixes
+
+- ComfyUI workflows now resolve `KSampler.inputs.positive` and `.negative` node references to text-bearing nodes instead of returning the complete workflow JSON.
+- EXIF strings are checked for UTF-16 byte patterns before being exposed to the infotext parser.
+- Civitai CDN image URLs can fall back to `/api/v1/images/{uuid}` when the downloaded thumbnail has no readable metadata.
 
 ## Git rules
 
