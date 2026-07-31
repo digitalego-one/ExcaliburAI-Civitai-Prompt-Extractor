@@ -54,6 +54,7 @@ The extractor stores `positivePrompt`, `negativePrompt`, `metadataText`, `rawTex
 - WebP EXIF UserComment may contain extra NUL bytes after `UNICODE`; the decoder skips that padding before UTF-16LE decoding.
 - JPEG prompt text is first decoded from raw APP1 bytes, bypassing `exif.js` string conversion that can produce CJK mojibake.
 - ComfyUI exports may be API prompt maps, UI `nodes[]`, or JSON with `NaN`; all are normalized before infotext parsing.
+- ComfyUI node references such as `['34', 0]` are links, never prompt text; recursive fallback is limited to prompt/parameter/info-shaped fields.
 
 ## Git rules
 

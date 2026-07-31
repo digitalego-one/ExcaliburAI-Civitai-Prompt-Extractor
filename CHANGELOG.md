@@ -20,6 +20,9 @@
 - Added direct JPEG APP1/UserComment byte decoding to avoid mojibake introduced by legacy EXIF parsing.
 - Added JSON metadata parsing for ComfyUI/API workflows, `negativeprompt`, nested parameter objects, `saved_prompt`, and `resolved_prompt`.
 - Added tolerant parsing for ComfyUI JSON containing non-standard `NaN` values.
+- Fixed ComfyUI node-link values such as `34,0` and `13,0` being mistaken for prompt text.
+- Added direct extraction of text-bearing ComfyUI nodes when sampler links are absent or custom.
+- Ignored workflow-only PNGs that contain no prompt instead of returning `is_changed` hashes.
 
 ## Working agreement
 

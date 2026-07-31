@@ -155,10 +155,15 @@ function normalizeMetadata(raw, source) {
       metadataText: Object.entries(raw).filter(([k]) => !/prompt/i.test(k)).map(([k, v]) => `${k}: ${v}`).join('\n'),
       source, confidence: 'high'
     };
+    const directTextNode = Object.values(raw).find(node => node && node.inputs && typeof node.inputs.text === 'string');
+    if (directTextNode) return {
+      positivePrompt: cleanPositiveSource(directTextNode.inputs.text), negativePrompt: '',
+      rawText: JSON.stringify(raw, null, 2), metadataText: '', source: 'comfy-workflow', confidence: 'medium'
+    };
     const workflowResult = parseComfyWorkflow(raw);
     if (workflowResult && workflowResult.positivePrompt) return workflowResult;
     for (const [key, value] of Object.entries(raw)) {
-      if (value && typeof value === 'object' && !/metadata|workflow/i.test(key)) {
+      if (value && typeof value === 'object' && /prompt|parameter|meta|info/i.test(key) && !/workflow/i.test(key)) {
         const nested = normalizeMetadata(value, source);
         if (nested && nested.positivePrompt) return nested;
       }
@@ -171,9 +176,11 @@ function extractMetadata(arrayBuffer) {
   const bytes = new Uint8Array(arrayBuffer);
   const png = readPngText(arrayBuffer);
   if (Object.keys(png).length) {
-    const candidate = png.parameters || png.prompt || png.workflow;
-    const result = normalizeMetadata(candidate ? (png.workflow ? { workflow: png.workflow, prompt: png.prompt } : candidate) : null, png.workflow ? 'comfy-workflow' : 'png-text');
-    if (result && result.positivePrompt) return result;
+    for (const key of ['parameters', 'prompt', 'workflow']) {
+      if (!png[key]) continue;
+      const result = normalizeMetadata(png[key], key === 'parameters' ? 'png-text' : 'comfy-workflow');
+      if (result && result.positivePrompt) return result;
+    }
   }
   if (decodeBytes(bytes.slice(0, 4), 'ascii') === 'RIFF') {
     const webp = readWebpMetadata(arrayBuffer); const result = normalizeMetadata(parseXmpText(webp.XMP), 'webp-xmp');
@@ -266,7 +273,7 @@ function parseComfyWorkflow(workflow) {
   const negatives = promptRefs.filter(x => x.type === 'negative').map(x => textNodes[x.ref]).filter(Boolean);
   const allTexts = Object.values(textNodes);
   return {
-    positivePrompt: cleanPositiveSource(positives[0] || promptCandidates[0] || (allTexts.length === 1 ? allTexts[0] : '')),
+    positivePrompt: cleanPositiveSource(positives[0] || promptCandidates[0] || allTexts[0] || ''),
     negativePrompt: negatives[0] || '', rawText, metadataText: '', source: 'comfy-workflow',
     confidence: positives.length ? 'high' : (allTexts.length ? 'medium' : 'low')
   };
