@@ -1,9 +1,9 @@
 // background.js
 
-importScripts('exif.js');
+importScripts('exif.js', 'metadata.js');
 
 // In-memory cache for EXIF data
-const exifCache = new Map();
+const metadataCache = new Map();
 
 // Create the context menu when the extension is installed
 chrome.runtime.onInstalled.addListener(() => {
@@ -28,24 +28,16 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       if (allowedDomains.length > 0) {
         const imageUrl = new URL(info.srcUrl);
         if (!allowedDomains.includes(imageUrl.hostname)) {
-          if (enableNotifications) {
-            chrome.notifications.create({
-              type: 'basic',
-              iconUrl: 'icons/icon48.png',
-              title: 'Copy Prompt If Any',
-              message: `Domain "${imageUrl.hostname}" is not allowed.`
-            });
-          }
+          await storeResult({ status: 'error', message: `Domain "${imageUrl.hostname}" is not allowed.` });
           return;
         }
       }
 
-      let exifData;
+      let result;
 
       // Check if EXIF data is cached
-      if (exifCache.has(info.srcUrl)) {
-        console.log("Using cached EXIF data for:", info.srcUrl);
-        exifData = exifCache.get(info.srcUrl);
+      if (metadataCache.has(info.srcUrl)) {
+        result = metadataCache.get(info.srcUrl);
       } else {
         // Fetch the image
         const response = await fetch(info.srcUrl);
@@ -62,128 +54,27 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
           throw new TypeError('First argument to DataView constructor must be an ArrayBuffer');
         }
 
-        // Read EXIF data from the image
-        exifData = EXIF.readFromBinaryFile(arrayBuffer);
-        console.log("EXIF data:", exifData);
-
-        // Cache the EXIF data
-        exifCache.set(info.srcUrl, exifData);
+        result = extractMetadata(arrayBuffer);
+        metadataCache.set(info.srcUrl, result);
       }
-
-      const userComment = exifData.UserComment || exifData.userComment;
-      console.log("UserComment:", userComment);
-
-      if (userComment && userComment.length > 0) {
-        const decodedText = decodeUserComment(userComment);
-        console.log("Decoded userComment:", decodedText);
-
-        if (decodedText && decodedText.trim() !== "" && decodedText !== "UNICODE") {
-          // Store the last copied prompt in storage
-          chrome.storage.local.set({ lastCopiedPrompt: decodedText }, () => {
-            console.log('Last copied prompt stored:', decodedText);
-          });
-
-          // Inject script to copy to clipboard
-          await injectCopyScript(tab.id, decodedText);
-
-          console.log("Injected copy script successfully.");
-
-          // Show success notification if enabled
-          if (enableNotifications) {
-            chrome.notifications.create({
-              type: 'basic',
-              iconUrl: 'icons/icon48.png',
-              title: 'Copy Prompt If Any',
-              message: 'Copied to clipboard'
-            });
-          }
-        } else if (decodedText === "UNICODE") {
-          // Show notification: No prompts found
-          if (enableNotifications) {
-            chrome.notifications.create({
-              type: 'basic',
-              iconUrl: 'icons/icon48.png',
-              title: 'Copy Prompt If Any',
-              message: 'No prompts found'
-            });
-          }
-        } else {
-          // Show notification: Failed to decode
-          if (enableNotifications) {
-            chrome.notifications.create({
-              type: 'basic',
-              iconUrl: 'icons/icon48.png',
-              title: 'Copy Prompt If Any',
-              message: 'Failed to decode the prompt'
-            });
-          }
-        }
-      } else {
-        // Show notification: No prompts found
-        if (enableNotifications) {
-          chrome.notifications.create({
-            type: 'basic',
-            iconUrl: 'icons/icon48.png',
-            title: 'Copy Prompt If Any',
-            message: 'No prompts found'
-          });
-        }
+      if (!result || !result.positivePrompt) {
+        await storeResult({ status: 'not-found', message: 'No readable positive prompt found.' });
+        return;
       }
+      await storeResult({ ...result, status: 'found' });
+      await injectCopyScript(tab.id, result.positivePrompt);
+      chrome.action.setBadgeText({ text: 'OK' });
+      chrome.action.setBadgeBackgroundColor({ color: '#2f8f67' });
+      if (chrome.action.openPopup) chrome.action.openPopup().catch(() => {});
     } catch (error) {
       console.error('Error processing image:', error);
-      // Show error notification if enabled
-      chrome.storage.local.get(['enableNotifications'], (result) => {
-        if (result.enableNotifications !== false) {
-          chrome.notifications.create({
-            type: 'basic',
-            iconUrl: 'icons/icon48.png',
-            title: 'Copy Prompt If Any',
-            message: 'An error occurred while processing the image.'
-          });
-        }
-      });
+      await storeResult({ status: 'error', message: error.message || 'Unable to process image.' });
     }
   }
 });
 
-// Function to decode the userComment field
-function decodeUserComment(userComment) {
-  let decoded = '';
-
-  if (Array.isArray(userComment)) {
-    // Convert to Uint8Array
-    const uint8Array = new Uint8Array(userComment);
-
-    // Decode the prefix (first 8 bytes)
-    const prefix = new TextDecoder('ascii').decode(uint8Array.slice(0, 8));
-
-    if (prefix === 'UNICODE') {
-      // Decode the rest as UTF-16LE
-      const contentBytes = uint8Array.slice(8);
-      decoded = new TextDecoder('utf-16le').decode(contentBytes);
-    } else if (prefix === 'ASCII\0\0\0') {
-      // Decode the rest as ASCII
-      const contentBytes = uint8Array.slice(8);
-      decoded = new TextDecoder('ascii').decode(contentBytes);
-    } else {
-      // No known prefix, attempt to decode as UTF-8
-      decoded = new TextDecoder('utf-8').decode(uint8Array);
-    }
-  } else if (typeof userComment === 'string') {
-    // Handle string directly
-    const unicodePrefix = 'UNICODE';
-    const asciiPrefix = 'ASCII\0\0\0';
-
-    if (userComment.startsWith(unicodePrefix)) {
-      decoded = userComment.slice(unicodePrefix.length).trim();
-    } else if (userComment.startsWith(asciiPrefix)) {
-      decoded = userComment.slice(asciiPrefix.length).trim();
-    } else {
-      decoded = userComment.trim();
-    }
-  }
-
-  return decoded;
+function storeResult(result) {
+  return new Promise(resolve => chrome.storage.local.set({ lastResult: result, lastCopiedPrompt: result.positivePrompt || '' }, resolve));
 }
 
 // Function to inject a script that copies text to the clipboard

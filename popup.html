@@ -1,75 +1,26 @@
-<!-- popup.html -->
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8"> <!-- Ensure UTF-8 encoding -->
-    <title>Last Copied Prompt</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            min-width: 300px;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        .section {
-            margin-bottom: 15px;
-        }
-        .section h3 {
-            margin: 0 0 5px 0;
-            font-size: 16px;
-            color: #333;
-        }
-        .section-content {
-            background-color: #f9f9f9;
-            padding: 10px;
-            border-radius: 5px;
-            word-wrap: break-word;
-            white-space: pre-wrap;
-            max-height: 150px;
-            overflow-y: auto;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Enhanced font support */
-            font-size: 14px;
-            color: #555;
-        }
-        .copy-button {
-            margin-top: 5px;
-            padding: 5px 10px;
-            background-color: #1d88d5;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .copy-button:hover {
-            background-color: #2d9ded;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Prompt Extractor</title>
+  <style>
+    :root { color-scheme: light; --ink: #1d2522; --muted: #66726d; --panel: #f1f5f2; --accent: #247a58; }
+    * { box-sizing: border-box; }
+    body { width: 360px; margin: 0; padding: 16px; color: var(--ink); background: #fbfcfa; font: 14px/1.45 system-ui, sans-serif; }
+    header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+    h1 { margin: 0; font-size: 18px; } #source { color: var(--muted); font-size: 11px; }
+    section { margin: 10px 0 14px; } h2 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+    .content { min-height: 42px; max-height: 145px; overflow: auto; padding: 10px; border: 1px solid #dce5df; border-radius: 8px; background: var(--panel); white-space: pre-wrap; overflow-wrap: anywhere; }
+    button { margin-top: 6px; padding: 7px 11px; border: 0; border-radius: 6px; color: white; background: var(--accent); cursor: pointer; } button:focus-visible { outline: 3px solid #a7d7bd; outline-offset: 2px; }
+    #toast { position: fixed; right: 12px; bottom: 12px; padding: 8px 12px; border-radius: 6px; color: white; background: #1d2522; opacity: 0; transform: translateY(6px); transition: opacity .18s, transform .18s; pointer-events: none; } #toast.visible { opacity: 1; transform: translateY(0); }
+  </style>
 </head>
 <body>
-    <h3>Last Copied Prompt</h3>
-    
-    <!-- Prompt Section -->
-    <div class="section">
-        <h3>Prompt</h3>
-        <div id="prompt" class="section-content">No prompt copied yet.</div>
-        <button id="copyPromptButton" class="copy-button">Copy Prompt</button>
-    </div>
-    
-    <!-- Negative Prompt Section -->
-    <div class="section">
-        <h3>Negative Prompt</h3>
-        <div id="negativePrompt" class="section-content">No negative prompt copied yet.</div>
-        <button id="copyNegativePromptButton" class="copy-button">Copy Negative Prompt</button>
-    </div>
-    
-    <!-- Other Metadata Section -->
-    <div class="section">
-        <h3>Other Metadata</h3>
-        <div id="otherMetadata" class="section-content">No metadata copied yet.</div>
-        <button id="copyMetadataButton" class="copy-button">Copy Metadata</button>
-    </div>
-
-    <script src="popup.js"></script>
+  <header><h1>Prompt Extractor</h1><span id="source">No image processed yet</span></header>
+  <section><h2>Positive prompt</h2><div id="prompt" class="content">Positive prompt not found.</div><button id="copyPromptButton">Copy positive prompt</button></section>
+  <section><h2>Negative prompt</h2><div id="negativePrompt" class="content">Negative prompt not found.</div><button id="copyNegativePromptButton">Copy negative prompt</button></section>
+  <section><h2>Technical metadata</h2><div id="otherMetadata" class="content">Technical metadata not found.</div><button id="copyMetadataButton">Copy metadata</button></section>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="popup.js"></script>
 </body>
 </html>
