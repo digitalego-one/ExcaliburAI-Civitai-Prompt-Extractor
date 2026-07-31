@@ -13,10 +13,14 @@
     .topbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 18px 14px; }
     .brand { display: flex; min-width: 0; align-items: center; gap: 10px; }
     .brand-mark { display: grid; width: 32px; height: 32px; flex: 0 0 auto; place-items: center; border-radius: 10px; background: var(--accent-soft); color: var(--accent-dark); }
+    .brand-mark img { width: 24px; height: 24px; object-fit: contain; }
     .brand-title { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
     .brand-subtitle { margin: 1px 0 0; color: var(--muted); font-size: 11px; }
     .source { display: inline-flex; align-items: center; max-width: 116px; gap: 6px; padding: 6px 8px; overflow: hidden; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 10px; font-weight: 650; white-space: nowrap; }
-    .source-dot { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: #ef9e4a; }
+    .source.is-available { border-color: #b9dccb; background: #f0faf5; color: var(--accent-dark); }
+    .source.is-unavailable { border-color: #ead7a9; background: #fffaf0; color: #8b6a20; }
+    .source-dot { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: #d6a52e; }
+    .source.is-available .source-dot { background: #2f9b68; }
     .topbar-actions { display: flex; align-items: center; gap: 6px; }
     .icon-button { display: inline-grid; width: 30px; height: 30px; place-items: center; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer; }
     .icon-button:hover, .icon-button:focus-visible { background: var(--field); color: var(--ink); outline: none; }
@@ -50,8 +54,8 @@
 <body>
   <main class="popup" aria-label="Prompt Extractor">
     <header class="topbar">
-      <div class="brand"><div class="brand-mark" aria-hidden="true">✦</div><div><h1 class="brand-title">Prompt Extractor</h1><p class="brand-subtitle">Capture the useful bits</p></div></div>
-      <div class="topbar-actions"><div class="source" title="Source: CivitAI"><span class="source-dot"></span><span>CivitAI</span></div><button class="icon-button" aria-label="More options" title="More options">⋯</button></div>
+      <div class="brand"><div class="brand-mark" aria-hidden="true"><img src="icons/icon128.png" alt=""></div><div><h1 class="brand-title">Prompt Extractor</h1><p class="brand-subtitle">Made by Digital Ego One</p></div></div>
+      <div class="topbar-actions"><div class="source is-unavailable" id="source" title="CivitAI availability"><span class="source-dot"></span><span id="sourceLabel">Unavailable</span></div><button class="icon-button" aria-label="More options" title="More options">⋯</button></div>
     </header>
     <div class="content">
       <section class="section"><div class="section-head"><h2 class="section-title">✓ Positive prompt</h2><span class="count" id="count">0 chars</span></div><div class="prompt-box"><div id="prompt" class="content-field" tabindex="0">Positive prompt not found.</div><div class="prompt-footer"><span>Extracted text</span><button class="icon-button" id="copyPromptIcon" aria-label="Copy positive prompt" title="Copy positive prompt">▣</button></div></div><button class="copy-button" id="copyPromptButton">▣ <span>Copy positive prompt</span></button></section>

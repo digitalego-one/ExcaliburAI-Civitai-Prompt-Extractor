@@ -64,7 +64,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         await storeResult({ status: 'not-found', message: 'No readable positive prompt found.' });
         return;
       }
-      await storeResult({ ...result, status: 'found' });
+      await storeResult({ ...result, status: 'found', sourceSite: classifySourceSite(tab.url) });
       await injectCopyScript(tab.id, result.positivePrompt);
       chrome.action.setBadgeText({ text: 'OK' });
       chrome.action.setBadgeBackgroundColor({ color: '#2f8f67' });
@@ -82,6 +82,15 @@ function storeResult(result) {
 
 function isCivitaiImageUrl(url) {
   try { return new URL(url).hostname.endsWith('.civitai.com'); } catch (_) { return false; }
+}
+
+function classifySourceSite(pageUrl) {
+  try {
+    const hostname = new URL(pageUrl || '').hostname.toLowerCase();
+    if (hostname === 'civitai.com' || hostname.endsWith('.civitai.com')) return 'civitai.com';
+    if (hostname === 'civitai.red' || hostname.endsWith('.civitai.red')) return 'civitai.red';
+  } catch (_) { /* Keep unavailable for local or malformed URLs. */ }
+  return '';
 }
 
 async function fetchCivitaiMetadata(imageUrl) {

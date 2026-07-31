@@ -22,6 +22,8 @@ Stable extraction baseline is tagged locally as `v1.3.0-stable`.
 
 Popup design version `1.4.0` is based on `design/prompt-extractor-modern.html`; it keeps the existing extraction pipeline and displays `CivitAI` in the header source badge.
 
+Popup version `1.5.0` uses the extension icon as the brand mark, credits `Digital Ego One`, and stores the active page domain to drive the CivitAI/Unavailable status badge.
+
 ## Workspace folders
 
 - `extension/`: canonical extension source and Git history.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.0 - 2026-07-31
+
+- Replaced the text brand mark with the extension icon.
+- Changed the subtitle to `Made by Digital Ego One`.
+- Added a site availability badge: CivitAI domains are green; other sites show yellow `Unavailable`.
+
 ## 1.4.0 - 2026-07-31
 
 - Applied the new popup design from `design/prompt-extractor-modern.html`.

@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   render('negativePrompt', result.negativePrompt, 'Negative prompt not found.');
   render('otherMetadata', result.metadataText, 'Technical metadata not found.');
   updateCount();
+  updateSource(result.sourceSite);
 
   for (const [buttonId, fieldId, emptyText] of [
     ['copyPromptButton', 'prompt', 'Positive prompt not found.'],
@@ -38,6 +39,16 @@ function render(id, value, fallback) { document.getElementById(id).textContent =
 function updateCount() {
   const value = document.getElementById('prompt').textContent;
   document.getElementById('count').textContent = `${value === 'Positive prompt not found.' ? 0 : value.length.toLocaleString()} chars`;
+}
+
+function updateSource(sourceSite) {
+  const source = document.getElementById('source');
+  const label = document.getElementById('sourceLabel');
+  const available = sourceSite === 'civitai.com' || sourceSite === 'civitai.red';
+  source.classList.toggle('is-available', available);
+  source.classList.toggle('is-unavailable', !available);
+  label.textContent = available ? 'CivitAI' : 'Unavailable';
+  source.title = available ? `Source site: ${sourceSite}` : 'CivitAI is unavailable on this site';
 }
 
 function showToast(message) {
