@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.0 - 2026-07-31
+
+- Preserved the previous design as local rollback tag `v1.5.0`.
+- Removed the green logo tile and enlarged the extension icon by approximately 20%.
+- Applied a light blue visual palette to the popup and design prototype.
+
 ## 1.5.0 - 2026-07-31
 
 - Replaced the text brand mark with the extension icon.

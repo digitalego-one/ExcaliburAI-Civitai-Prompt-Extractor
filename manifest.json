@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ExcaliburAI - Civitai Prompt Extractor",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Copies prompt and metadata in clipboard with 1 click from Ai-generated images, if there is any.",
   "permissions": [
     "contextMenus",

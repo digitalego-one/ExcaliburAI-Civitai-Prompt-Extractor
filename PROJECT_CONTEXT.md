@@ -24,6 +24,8 @@ Popup design version `1.4.0` is based on `design/prompt-extractor-modern.html`; 
 
 Popup version `1.5.0` uses the extension icon as the brand mark, credits `Digital Ego One`, and stores the active page domain to drive the CivitAI/Unavailable status badge.
 
+Popup version `1.6.0` keeps `v1.5.0` available as a rollback point, removes the logo tile, enlarges the icon, and uses a light blue palette.
+
 ## Workspace folders
 
 - `extension/`: canonical extension source and Git history.
