@@ -20,12 +20,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   document.getElementById('copyPromptIcon').addEventListener('click', () => document.getElementById('copyPromptButton').click());
-  document.getElementById('copyAllButton').addEventListener('click', async () => {
-    const positive = document.getElementById('prompt').textContent;
-    if (!positive || positive === 'Positive prompt not found.') return showToast('Nothing to copy');
-    try { await navigator.clipboard.writeText(positive); showToast('Copied'); }
-    catch (_) { showToast('Copy failed'); }
-  });
 });
 
 function getStoredResult() {

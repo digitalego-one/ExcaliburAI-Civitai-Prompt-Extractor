@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Prompt Extractor</title>
   <style>
-    :root { color-scheme: light; --ink: #17242b; --muted: #647983; --soft-muted: #8aa0a9; --line: #d3e1e7; --panel: #fafdff; --canvas: #eaf4f8; --field: #f2f9fc; --accent: #167d8a; --accent-dark: #0d6370; --accent-soft: #dff2f6; }
+    :root { color-scheme: light; --ink: #17242b; --muted: #647983; --soft-muted: #8aa0a9; --line: #d3e1e7; --panel: #fff; --canvas: #fff; --field: #f2f9fc; --accent: #167d8a; --accent-dark: #0d6370; --accent-soft: #dff2f6; }
     * { box-sizing: border-box; }
     body { width: 368px; margin: 0; color: var(--ink); background: var(--canvas); font: 13px/1.45 Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     button { font: inherit; }
@@ -44,9 +44,6 @@
     .empty-icon { display: grid; width: 22px; height: 22px; flex: 0 0 auto; place-items: center; border-radius: 7px; background: #e8efeb; color: var(--soft-muted); }
     .small-copy { padding: 6px 8px; border: 1px solid #cbd6d0; background: #fff; color: var(--muted); font-size: 10px; }
     .small-copy:hover { border-color: #9eb5a7; color: var(--accent-dark); }
-    .bottom-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
-    .copy-all { display: inline-flex; align-items: center; gap: 7px; border: 0; background: transparent; color: var(--accent-dark); font-size: 12px; font-weight: 750; cursor: pointer; }
-    .status { min-height: 18px; color: var(--soft-muted); font-size: 10px; text-align: right; }
     #toast { position: fixed; right: 12px; bottom: 12px; padding: 8px 12px; border-radius: 8px; color: white; background: #1d2522; opacity: 0; transform: translateY(6px); transition: opacity .18s, transform .18s; pointer-events: none; }
     #toast.visible { opacity: 1; transform: translateY(0); }
   </style>
@@ -58,10 +55,9 @@
       <div class="topbar-actions"><div class="source is-unavailable" id="source" title="CivitAI availability"><span class="source-dot"></span><span id="sourceLabel">Unavailable</span></div><button class="icon-button" aria-label="More options" title="More options">⋯</button></div>
     </header>
     <div class="content">
-      <section class="section"><div class="section-head"><h2 class="section-title">✓ Positive prompt</h2><span class="count" id="count">0 chars</span></div><div class="prompt-box"><div id="prompt" class="content-field" tabindex="0">Positive prompt not found.</div><div class="prompt-footer"><span>Extracted text</span><button class="icon-button" id="copyPromptIcon" aria-label="Copy positive prompt" title="Copy positive prompt">▣</button></div></div><button class="copy-button" id="copyPromptButton">▣ <span>Copy positive prompt</span></button></section>
-      <section class="section"><div class="section-head"><h2 class="section-title">× Negative prompt</h2></div><div class="empty-row"><div class="empty-copy"><span class="empty-icon">−</span><span id="negativePrompt">Negative prompt not found.</span></div><button class="small-copy" id="copyNegativePromptButton">▣ Copy</button></div></section>
-      <section class="section"><div class="section-head"><h2 class="section-title">≡ Technical metadata</h2></div><div class="empty-row"><div class="empty-copy"><span class="empty-icon">i</span><span id="otherMetadata">Technical metadata not found.</span></div><button class="small-copy" id="copyMetadataButton">▣ Copy</button></div></section>
-      <div class="bottom-bar"><button class="copy-all" id="copyAllButton">▣ Copy all</button><div class="status" id="status">Ready to extract</div></div>
+      <section class="section"><div class="section-head"><h2 class="section-title">✓ Positive prompt</h2><span class="count" id="count">0 chars</span></div><div class="prompt-box"><div id="prompt" class="content-field" tabindex="0">Positive prompt not found.</div><div class="prompt-footer"><span>Extracted text</span><button class="icon-button" id="copyPromptIcon" aria-label="Copy positive prompt" title="Copy positive prompt"></button></div></div><button class="copy-button" id="copyPromptButton"><span>Copy positive prompt</span></button></section>
+      <section class="section"><div class="section-head"><h2 class="section-title">× Negative prompt</h2></div><div class="empty-row"><div class="empty-copy"><span class="empty-icon">−</span><span id="negativePrompt">Negative prompt not found.</span></div><button class="small-copy" id="copyNegativePromptButton">Copy</button></div></section>
+      <section class="section"><div class="section-head"><h2 class="section-title">≡ Technical metadata</h2></div><div class="empty-row"><div class="empty-copy"><span class="empty-icon">i</span><span id="otherMetadata">Technical metadata not found.</span></div><button class="small-copy" id="copyMetadataButton">Copy</button></div></section>
     </div>
   </main>
   <div id="toast" role="status" aria-live="polite"></div>

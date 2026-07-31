@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.0 - 2026-07-31
+
+- Restored a white application background.
+- Removed `Copy all`, `Ready to extract`, and the bottom divider.
+- Removed ambiguous square glyphs from copy controls.
+
 ## 1.6.0 - 2026-07-31
 
 - Preserved the previous design as local rollback tag `v1.5.0`.

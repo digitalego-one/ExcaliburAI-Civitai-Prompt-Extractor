@@ -26,6 +26,8 @@ Popup version `1.5.0` uses the extension icon as the brand mark, credits `Digita
 
 Popup version `1.6.0` keeps `v1.5.0` available as a rollback point, removes the logo tile, enlarges the icon, and uses a light blue palette.
 
+Popup version `1.7.0` uses a white application background, removes the bottom copy/status row, and keeps copy controls text-only.
+
 ## Workspace folders
 
 - `extension/`: canonical extension source and Git history.
