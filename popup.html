@@ -1,25 +1,65 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Prompt Extractor</title>
   <style>
-    :root { color-scheme: light; --ink: #1d2522; --muted: #66726d; --panel: #f1f5f2; --accent: #247a58; }
+    :root { color-scheme: light; --ink: #17211d; --muted: #6a756f; --soft-muted: #89948e; --line: #d9e1dc; --panel: #fff; --canvas: #f3f6f3; --field: #f5f8f6; --accent: #167d5b; --accent-dark: #0d6749; --accent-soft: #e6f3ed; }
     * { box-sizing: border-box; }
-    body { width: 360px; margin: 0; padding: 16px; color: var(--ink); background: #fbfcfa; font: 14px/1.45 system-ui, sans-serif; }
-    header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
-    h1 { margin: 0; font-size: 18px; } #source { color: var(--muted); font-size: 11px; }
-    section { margin: 10px 0 14px; } h2 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-    .content { min-height: 42px; max-height: 145px; overflow: auto; padding: 10px; border: 1px solid #dce5df; border-radius: 8px; background: var(--panel); white-space: pre-wrap; overflow-wrap: anywhere; }
-    button { margin-top: 6px; padding: 7px 11px; border: 0; border-radius: 6px; color: white; background: var(--accent); cursor: pointer; } button:focus-visible { outline: 3px solid #a7d7bd; outline-offset: 2px; }
-    #toast { position: fixed; right: 12px; bottom: 12px; padding: 8px 12px; border-radius: 6px; color: white; background: #1d2522; opacity: 0; transform: translateY(6px); transition: opacity .18s, transform .18s; pointer-events: none; } #toast.visible { opacity: 1; transform: translateY(0); }
+    body { width: 368px; margin: 0; color: var(--ink); background: var(--canvas); font: 13px/1.45 Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    button { font: inherit; }
+    .popup { overflow: hidden; border: 1px solid rgba(176,191,182,.65); border-radius: 16px; background: var(--panel); box-shadow: 0 18px 46px rgba(24,44,35,.12), 0 2px 8px rgba(24,44,35,.06); }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 18px 14px; }
+    .brand { display: flex; min-width: 0; align-items: center; gap: 10px; }
+    .brand-mark { display: grid; width: 32px; height: 32px; flex: 0 0 auto; place-items: center; border-radius: 10px; background: var(--accent-soft); color: var(--accent-dark); }
+    .brand-title { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+    .brand-subtitle { margin: 1px 0 0; color: var(--muted); font-size: 11px; }
+    .source { display: inline-flex; align-items: center; max-width: 116px; gap: 6px; padding: 6px 8px; overflow: hidden; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 10px; font-weight: 650; white-space: nowrap; }
+    .source-dot { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: #ef9e4a; }
+    .topbar-actions { display: flex; align-items: center; gap: 6px; }
+    .icon-button { display: inline-grid; width: 30px; height: 30px; place-items: center; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer; }
+    .icon-button:hover, .icon-button:focus-visible { background: var(--field); color: var(--ink); outline: none; }
+    .content { padding: 0 18px 18px; }
+    .section { padding-top: 16px; border-top: 1px solid var(--line); }
+    .section + .section { margin-top: 16px; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 9px; }
+    .section-title { display: flex; align-items: center; gap: 7px; margin: 0; color: #5d6b64; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .section-title svg { color: var(--accent); }
+    .count { color: var(--soft-muted); font-size: 10px; font-weight: 600; }
+    .prompt-box { overflow: hidden; border: 1px solid var(--line); border-radius: 11px; background: var(--field); }
+    .prompt-box:focus-within { border-color: #92c5b0; box-shadow: 0 0 0 3px rgba(22,125,91,.10); }
+    .content-field { display: block; width: 100%; min-height: 168px; max-height: 220px; overflow: auto; padding: 12px; white-space: pre-wrap; overflow-wrap: anywhere; background: transparent; color: var(--ink); font-size: 13px; line-height: 1.48; }
+    .prompt-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 9px 8px; border-top: 1px solid var(--line); color: var(--soft-muted); font-size: 10px; }
+    .copy-button, .small-copy { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: 9px; cursor: pointer; font-weight: 700; }
+    .copy-button { min-height: 34px; margin-top: 10px; padding: 0 12px; border: 0; background: var(--accent); color: #fff; font-size: 12px; }
+    .copy-button:hover { background: var(--accent-dark); }
+    .copy-button.is-copied { background: #278d6c; }
+    .empty-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--field); color: var(--muted); font-size: 12px; }
+    .empty-copy { display: flex; align-items: center; gap: 8px; }
+    .empty-icon { display: grid; width: 22px; height: 22px; flex: 0 0 auto; place-items: center; border-radius: 7px; background: #e8efeb; color: var(--soft-muted); }
+    .small-copy { padding: 6px 8px; border: 1px solid #cbd6d0; background: #fff; color: var(--muted); font-size: 10px; }
+    .small-copy:hover { border-color: #9eb5a7; color: var(--accent-dark); }
+    .bottom-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+    .copy-all { display: inline-flex; align-items: center; gap: 7px; border: 0; background: transparent; color: var(--accent-dark); font-size: 12px; font-weight: 750; cursor: pointer; }
+    .status { min-height: 18px; color: var(--soft-muted); font-size: 10px; text-align: right; }
+    #toast { position: fixed; right: 12px; bottom: 12px; padding: 8px 12px; border-radius: 8px; color: white; background: #1d2522; opacity: 0; transform: translateY(6px); transition: opacity .18s, transform .18s; pointer-events: none; }
+    #toast.visible { opacity: 1; transform: translateY(0); }
   </style>
 </head>
 <body>
-  <header><h1>Prompt Extractor</h1><span id="source">No image processed yet</span></header>
-  <section><h2>Positive prompt</h2><div id="prompt" class="content">Positive prompt not found.</div><button id="copyPromptButton">Copy positive prompt</button></section>
-  <section><h2>Negative prompt</h2><div id="negativePrompt" class="content">Negative prompt not found.</div><button id="copyNegativePromptButton">Copy negative prompt</button></section>
-  <section><h2>Technical metadata</h2><div id="otherMetadata" class="content">Technical metadata not found.</div><button id="copyMetadataButton">Copy metadata</button></section>
+  <main class="popup" aria-label="Prompt Extractor">
+    <header class="topbar">
+      <div class="brand"><div class="brand-mark" aria-hidden="true">✦</div><div><h1 class="brand-title">Prompt Extractor</h1><p class="brand-subtitle">Capture the useful bits</p></div></div>
+      <div class="topbar-actions"><div class="source" title="Source: CivitAI"><span class="source-dot"></span><span>CivitAI</span></div><button class="icon-button" aria-label="More options" title="More options">⋯</button></div>
+    </header>
+    <div class="content">
+      <section class="section"><div class="section-head"><h2 class="section-title">✓ Positive prompt</h2><span class="count" id="count">0 chars</span></div><div class="prompt-box"><div id="prompt" class="content-field" tabindex="0">Positive prompt not found.</div><div class="prompt-footer"><span>Extracted text</span><button class="icon-button" id="copyPromptIcon" aria-label="Copy positive prompt" title="Copy positive prompt">▣</button></div></div><button class="copy-button" id="copyPromptButton">▣ <span>Copy positive prompt</span></button></section>
+      <section class="section"><div class="section-head"><h2 class="section-title">× Negative prompt</h2></div><div class="empty-row"><div class="empty-copy"><span class="empty-icon">−</span><span id="negativePrompt">Negative prompt not found.</span></div><button class="small-copy" id="copyNegativePromptButton">▣ Copy</button></div></section>
+      <section class="section"><div class="section-head"><h2 class="section-title">≡ Technical metadata</h2></div><div class="empty-row"><div class="empty-copy"><span class="empty-icon">i</span><span id="otherMetadata">Technical metadata not found.</span></div><button class="small-copy" id="copyMetadataButton">▣ Copy</button></div></section>
+      <div class="bottom-bar"><button class="copy-all" id="copyAllButton">▣ Copy all</button><div class="status" id="status">Ready to extract</div></div>
+    </div>
+  </main>
   <div id="toast" role="status" aria-live="polite"></div>
   <script src="popup.js"></script>
 </body>

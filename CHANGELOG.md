@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.0 - 2026-07-31
+
+- Applied the new popup design from `design/prompt-extractor-modern.html`.
+- Replaced the source badge label `infote` with `CivitAI`.
+- Preserved prompt, negative prompt, metadata, copy, and toast behavior while adapting it to the redesigned layout.
+
 ## 2026-07-31
 
 - Created `extension/` as the canonical Git checkout from GitHub branch `v1.2`.

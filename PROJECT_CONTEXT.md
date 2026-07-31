@@ -18,6 +18,10 @@ Baseline: `origin/v1.2`
 
 Current branch: `codex/metadata-extractor`
 
+Stable extraction baseline is tagged locally as `v1.3.0-stable`.
+
+Popup design version `1.4.0` is based on `design/prompt-extractor-modern.html`; it keeps the existing extraction pipeline and displays `CivitAI` in the header source badge.
+
 ## Workspace folders
 
 - `extension/`: canonical extension source and Git history.
