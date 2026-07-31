@@ -13,6 +13,9 @@
 - Fixed ComfyUI workflow extraction to follow KSampler positive/negative links to `CLIPTextEncode` nodes.
 - Added UTF-16 EXIF string handling to prevent mojibake in JPEG prompts.
 - Added a Civitai image API fallback for thumbnails without embedded metadata.
+- Added WebP RIFF `EXIF` chunk support and XMP text extraction for Civitai preview files.
+- Prevented XML, JSON, and technical metadata strings from being returned as positive prompt.
+- Avoided treating generic XMP creator/history values such as `ai` as a prompt.
 
 ## Working agreement
 

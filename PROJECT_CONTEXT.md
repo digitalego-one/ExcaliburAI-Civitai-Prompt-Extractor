@@ -49,6 +49,8 @@ The extractor stores `positivePrompt`, `negativePrompt`, `metadataText`, `rawTex
 - ComfyUI workflows now resolve `KSampler.inputs.positive` and `.negative` node references to text-bearing nodes instead of returning the complete workflow JSON.
 - EXIF strings are checked for UTF-16 byte patterns before being exposed to the infotext parser.
 - Civitai CDN image URLs can fall back to `/api/v1/images/{uuid}` when the downloaded thumbnail has no readable metadata.
+- WebP previews may store metadata in RIFF `EXIF` and `XMP ` chunks; both are checked before the Civitai API fallback.
+- Positive prompt output is deliberately strict: XML, JSON/workflow, and known technical sections are never copied as the positive prompt.
 
 ## Git rules
 

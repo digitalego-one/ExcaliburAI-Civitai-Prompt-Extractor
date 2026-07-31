@@ -93,7 +93,7 @@ async function fetchCivitaiMetadata(imageUrl) {
   const meta = data && data.meta;
   if (!meta) return null;
   return {
-    positivePrompt: String(meta.prompt || '').trim(),
+    positivePrompt: cleanPositiveSource(String(meta.prompt || '').trim()),
     negativePrompt: String(meta.negativePrompt || '').trim(),
     rawText: JSON.stringify(meta, null, 2),
     metadataText: Object.entries(meta).filter(([key]) => !/prompt/i.test(key)).map(([key, value]) => `${key}: ${value}`).join('\n'),

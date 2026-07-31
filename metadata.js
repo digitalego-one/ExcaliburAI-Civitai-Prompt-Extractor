@@ -45,13 +45,44 @@ function readWebpMetadata(arrayBuffer) {
     const length = view.getUint32(offset + 4, true); const start = offset + 8;
     if (start + length > bytes.length) break;
     if (type === 'XMP ') result.XMP = decodeBytes(bytes.slice(start, start + length), 'utf-8');
+    if (type === 'EXIF') result.EXIF = readTiffText(bytes.slice(start, start + length));
     offset = start + length + (length % 2);
   }
   return result;
 }
 
+function readTiffText(bytes) {
+  let start = 0;
+  if (decodeBytes(bytes.slice(0, 6), 'ascii') === 'Exif\0\0') start = 6;
+  if (bytes.length < start + 8) return {};
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const little = decodeBytes(bytes.slice(start, start + 2), 'ascii') === 'II';
+  const u16 = p => view.getUint16(start + p, !little);
+  const u32 = p => view.getUint32(start + p, !little);
+  if (u16(2) !== 42) return {};
+  const values = {};
+  const readIfd = (offset, depth) => {
+    if (depth > 2 || offset + 2 > bytes.length) return;
+    const count = u16(offset);
+    for (let i = 0; i < count; i++) {
+      const entry = offset + 2 + i * 12;
+      if (entry + 12 > bytes.length) continue;
+      const tag = u16(entry), type = u16(entry + 2), countValue = u32(entry + 4);
+      const size = type === 1 || type === 2 || type === 7 ? 1 : type === 3 ? 2 : type === 4 ? 4 : 0;
+      const total = size * countValue; const valueOffset = total > 4 ? u32(entry + 8) : entry + 8;
+      if (!size || valueOffset + total > bytes.length) continue;
+      if (tag === 0x8769 && type === 4) readIfd(u32(entry + 8), depth + 1);
+      if (tag !== 0x9286 && tag !== 0x010e && tag !== 0x9c9c) continue;
+      const raw = bytes.slice(start + valueOffset, start + valueOffset + total);
+      values[tag === 0x9286 ? 'UserComment' : tag === 0x9c9c ? 'XPComment' : 'ImageDescription'] = raw;
+    }
+  };
+  readIfd(u32(4), 0);
+  return values;
+}
+
 function parseInfotext(raw) {
-  const text = String(raw || '').replace(/^UNICODE\s*/i, '').trim();
+  const text = cleanPositiveSource(String(raw || '').replace(/^UNICODE\s*/i, '').trim());
   if (!text) return null;
   const negativeMatch = text.match(/(?:^|\n)\s*Negative prompt\s*:\s*/i);
   const metadataMatch = text.match(/(?:^|\n)\s*(?:Steps|Seed|Sampler|Size|Model hash)\s*:/i);
@@ -72,7 +103,7 @@ function normalizeMetadata(raw, source) {
   if (!raw) return null;
   if (typeof raw === 'object' && !Array.isArray(raw)) {
     if (raw.prompt || raw.positivePrompt || raw.negativePrompt) return {
-      positivePrompt: String(raw.positivePrompt || raw.prompt || '').trim(),
+      positivePrompt: cleanPositiveSource(String(raw.positivePrompt || raw.prompt || '').trim()),
       negativePrompt: String(raw.negativePrompt || '').trim(), rawText: JSON.stringify(raw, null, 2),
       metadataText: Object.entries(raw).filter(([k]) => !/prompt/i.test(k)).map(([k, v]) => `${k}: ${v}`).join('\n'),
       source, confidence: 'high'
@@ -93,11 +124,12 @@ function extractMetadata(arrayBuffer) {
     if (result && result.positivePrompt) return result;
   }
   if (decodeBytes(bytes.slice(0, 4), 'ascii') === 'RIFF') {
-    const webp = readWebpMetadata(arrayBuffer); const result = normalizeMetadata(webp.XMP, 'webp-xmp');
+    const webp = readWebpMetadata(arrayBuffer); const result = normalizeMetadata(parseXmpText(webp.XMP), 'webp-xmp');
     if (result && result.positivePrompt) return result;
   }
   const exif = typeof EXIF !== 'undefined' ? EXIF.readFromBinaryFile(arrayBuffer) : {};
-  const comment = exif.UserComment || exif.userComment || exif.XPComment || exif.ImageDescription;
+  const webp = decodeBytes(bytes.slice(0, 4), 'ascii') === 'RIFF' ? readWebpMetadata(arrayBuffer) : {};
+  const comment = exif.UserComment || exif.userComment || exif.XPComment || exif.ImageDescription || webp.EXIF && (webp.EXIF.UserComment || webp.EXIF.XPComment || webp.EXIF.ImageDescription);
   return normalizeMetadata(decodeExifComment(comment), 'jpeg-exif');
 }
 
@@ -141,8 +173,24 @@ function parseComfyWorkflow(workflow) {
   const negatives = promptRefs.filter(x => x.type === 'negative').map(x => textNodes[x.ref]).filter(Boolean);
   const allTexts = Object.values(textNodes);
   return {
-    positivePrompt: positives[0] || (allTexts.length === 1 ? allTexts[0] : ''),
+    positivePrompt: cleanPositiveSource(positives[0] || (allTexts.length === 1 ? allTexts[0] : '')),
     negativePrompt: negatives[0] || '', rawText, metadataText: '', source: 'comfy-workflow',
     confidence: positives.length ? 'high' : (allTexts.length ? 'medium' : 'low')
   };
+}
+
+function cleanPositiveSource(value) {
+  let text = String(value || '').replace(/^\s*(?:positive\s*)?prompt\s*:\s*/i, '').trim();
+  if (!text || /^[{[]/.test(text) || /^<\?xml|^<x:xmpmeta|^<rdf:RDF/i.test(text)) return '';
+  const boundary = text.search(/(?:\n|\r|,)\s*(?:negative prompt|steps|sampler|scheduler|cfg(?: scale)?|seed|size|model(?: hash)?|enable|no seed)\s*:/i);
+  if (boundary >= 0) text = text.slice(0, boundary);
+  return text.replace(/\s+$/g, '').trim();
+}
+
+function parseXmpText(xmp) {
+  if (!xmp) return '';
+  const matches = [...String(xmp).matchAll(/<(?:dc:description|xmp:Description|exif:UserComment)[^>]*>([\s\S]*?)<\//gi)]
+    .map(match => match[1].replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim())
+    .filter(Boolean);
+  return matches.join('\n');
 }
