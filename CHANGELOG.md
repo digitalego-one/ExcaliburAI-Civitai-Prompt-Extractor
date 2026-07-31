@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.0 - 2026-07-31
+
+- Audited 163 fixture files across PNG, JPEG, WebP, preview, and errored batches.
+- Added title-based negative-node fallback for ComfyUI nodes labeled `Negative prompt`, `negative_prompt`, `负面`, or `负向` when no sampler link is present.
+- Corpus verification now returns 19 negative prompts and 11 technical metadata blocks from 88 positive-prompt results; files without a positive prompt remain excluded.
+
 ## 1.9.0 - 2026-07-31
 
 - Inspected PNG ComfyUI `prompt` and `workflow` metadata across the fixture corpus.

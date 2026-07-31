@@ -32,6 +32,8 @@ Popup version `1.8.0` preserves negative prompts and technical metadata in parti
 
 Parser version `1.9.0` resolves ComfyUI UI workflows under `workflow.nodes`, follows reroute links, and prioritizes complete workflow metadata over incomplete prompt maps.
 
+Parser version `1.10.0` also reads negative CLIP text from semantic node titles when a ComfyUI graph has no usable negative sampler link; the fixture corpus audit result is 88 positive results, 19 with negative prompt, and 11 with technical metadata.
+
 ComfyUI workflow links are resolved before direct text-node fallback so both positive and negative CLIP text nodes remain available to the popup.
 
 ## Workspace folders

@@ -271,6 +271,8 @@ function parseComfyWorkflow(workflow) {
   const textNodes = {};
   const promptCandidates = [];
   const promptRefs = [];
+  const titledPositive = [];
+  const titledNegative = [];
   const outputLinks = {};
   for (const [id, node] of Object.entries(nodes)) {
     for (const output of Array.isArray(node?.outputs) ? node.outputs : []) {
@@ -301,6 +303,9 @@ function parseComfyWorkflow(workflow) {
     const inputs = Array.isArray(node.inputs) ? Object.fromEntries(node.inputs.map(input => [input.name, input])) : (node.inputs || {});
     const text = textForNode(node);
     if (typeof text === 'string') textNodes[id] = text.trim();
+    const nodeLabel = `${node.type || ''} ${node.title || ''} ${node._meta?.title || ''} ${node.properties?.['Node name for S&R'] || ''}`;
+    if (text && /negative|negative prompt|negative_prompt|负面|负向/i.test(nodeLabel)) titledNegative.push(text.trim());
+    if (text && /positive|positive prompt|positive_prompt|正面|正向/i.test(nodeLabel)) titledPositive.push(text.trim());
     for (const key of ['saved_prompt', 'resolved_prompt', 'source_prompt', 'prompt_log_line']) if (typeof inputs[key] === 'string') promptCandidates.push(inputs[key]);
     if (inputs.positive && Array.isArray(inputs.positive)) promptRefs.push({ type: 'positive', ref: inputs.positive[0] });
     if (inputs.negative && Array.isArray(inputs.negative)) promptRefs.push({ type: 'negative', ref: inputs.negative[0] });
@@ -314,8 +319,8 @@ function parseComfyWorkflow(workflow) {
   const negatives = promptRefs.filter(x => x.type === 'negative').map(x => textNodes[x.ref]).filter(Boolean);
   const allTexts = Object.values(textNodes);
   return {
-    positivePrompt: cleanPositiveSource(positives[0] || promptCandidates[0] || allTexts[0] || ''),
-    negativePrompt: negatives[0] || '', rawText, metadataText: formatWorkflowMetadata(graph), source: 'comfy-workflow',
+    positivePrompt: cleanPositiveSource(positives[0] || titledPositive[0] || promptCandidates[0] || allTexts[0] || ''),
+    negativePrompt: negatives[0] || titledNegative[0] || '', rawText, metadataText: formatWorkflowMetadata(graph), source: 'comfy-workflow',
     confidence: positives.length ? 'high' : (allTexts.length ? 'medium' : 'low')
   };
 }
