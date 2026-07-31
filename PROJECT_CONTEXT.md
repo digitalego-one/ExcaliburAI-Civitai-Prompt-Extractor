@@ -51,6 +51,7 @@ The extractor stores `positivePrompt`, `negativePrompt`, `metadataText`, `rawTex
 - Civitai CDN image URLs can fall back to `/api/v1/images/{uuid}` when the downloaded thumbnail has no readable metadata.
 - WebP previews may store metadata in RIFF `EXIF` and `XMP ` chunks; both are checked before the Civitai API fallback.
 - Positive prompt output is deliberately strict: XML, JSON/workflow, and known technical sections are never copied as the positive prompt.
+- WebP EXIF UserComment may contain extra NUL bytes after `UNICODE`; the decoder skips that padding before UTF-16LE decoding.
 
 ## Git rules
 

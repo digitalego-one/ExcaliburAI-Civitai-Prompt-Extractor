@@ -45,7 +45,21 @@ function readWebpMetadata(arrayBuffer) {
     const length = view.getUint32(offset + 4, true); const start = offset + 8;
     if (start + length > bytes.length) break;
     if (type === 'XMP ') result.XMP = decodeBytes(bytes.slice(start, start + length), 'utf-8');
-    if (type === 'EXIF') result.EXIF = readTiffText(bytes.slice(start, start + length));
+    if (type === 'EXIF') {
+      const exifBytes = bytes.slice(start, start + length);
+      result.EXIF = readTiffText(exifBytes);
+      const utf8 = decodeBytes(exifBytes, 'utf-8');
+      const utf16 = decodeBytes(exifBytes, 'utf-16le');
+      const unicodeMarker = exifBytes.indexOf(85); // Fast path for the standard EXIF UserComment prefix.
+      const marker = unicodeMarker >= 0 && decodeBytes(exifBytes.slice(unicodeMarker, unicodeMarker + 7), 'ascii') === 'UNICODE' ? unicodeMarker : -1;
+      if (marker >= 0) {
+        let dataStart = marker + 7;
+        while (dataStart < exifBytes.length && exifBytes[dataStart] === 0) dataStart++;
+        result.EXIF_TEXT = decodeBytes(exifBytes.slice(dataStart), 'utf-16le').replace(/\0+$/, '');
+      } else {
+        result.EXIF_TEXT = /\b(?:prompt|negative prompt|steps|seed|sampler)\b/i.test(utf8) ? utf8 : '';
+      }
+    }
     offset = start + length + (length % 2);
   }
   return result;
@@ -78,6 +92,19 @@ function readTiffText(bytes) {
     }
   };
   readIfd(u32(4), 0);
+  // Some WebP writers omit a reliable IFD chain. Recover the text tags by scanning
+  // aligned TIFF entries as a safe fallback before declaring the chunk empty.
+  if (!Object.keys(values).length) {
+    for (let entry = 0; entry + 12 <= bytes.length; entry += 2) {
+      const tag = u16(entry);
+      if (tag !== 0x9286 && tag !== 0x010e && tag !== 0x9c9c) continue;
+      const type = u16(entry + 2), countValue = u32(entry + 4);
+      const size = type === 1 || type === 2 || type === 7 ? 1 : type === 3 ? 2 : type === 4 ? 4 : 0;
+      const total = size * countValue, valueOffset = total > 4 ? u32(entry + 8) : entry + 8;
+      if (!size || valueOffset + total > bytes.length) continue;
+      values[tag === 0x9286 ? 'UserComment' : tag === 0x9c9c ? 'XPComment' : 'ImageDescription'] = bytes.slice(start + valueOffset, start + valueOffset + total);
+    }
+  }
   return values;
 }
 
@@ -129,7 +156,7 @@ function extractMetadata(arrayBuffer) {
   }
   const exif = typeof EXIF !== 'undefined' ? EXIF.readFromBinaryFile(arrayBuffer) : {};
   const webp = decodeBytes(bytes.slice(0, 4), 'ascii') === 'RIFF' ? readWebpMetadata(arrayBuffer) : {};
-  const comment = exif.UserComment || exif.userComment || exif.XPComment || exif.ImageDescription || webp.EXIF && (webp.EXIF.UserComment || webp.EXIF.XPComment || webp.EXIF.ImageDescription);
+  const comment = exif.UserComment || exif.userComment || exif.XPComment || exif.ImageDescription || webp.EXIF && (webp.EXIF.UserComment || webp.EXIF.XPComment || webp.EXIF.ImageDescription) || webp.EXIF_TEXT;
   return normalizeMetadata(decodeExifComment(comment), 'jpeg-exif');
 }
 

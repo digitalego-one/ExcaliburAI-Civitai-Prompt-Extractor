@@ -16,6 +16,7 @@
 - Added WebP RIFF `EXIF` chunk support and XMP text extraction for Civitai preview files.
 - Prevented XML, JSON, and technical metadata strings from being returned as positive prompt.
 - Avoided treating generic XMP creator/history values such as `ai` as a prompt.
+- Added robust WebP EXIF `UNICODE` marker handling, including extra NUL padding found in Civitai previews.
 
 ## Working agreement
 
