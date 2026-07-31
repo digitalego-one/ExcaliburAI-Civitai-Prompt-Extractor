@@ -6,6 +6,7 @@
 - Updated release-facing version references to `2.0` / `2.0.0`.
 - Updated the project website link to `https://digitalego.one/`.
 - Kept the positive-prompt-focused popup and documented backlog unchanged.
+- Removed the former ExcaliburAI website link from project documentation; Digital Ego One is now the only project website reference.
 
 ## 1.14.0 - 2026-07-31
 
