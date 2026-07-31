@@ -132,8 +132,28 @@ function normalizeMetadata(raw, source) {
     const text = raw.trim();
     if (/^[{[]/.test(text)) {
       try {
+        const embedded = text.match(/\\u0022prompt\\u0022:\\u0022([\s\S]*?)\\u0022,\\u0022negativePrompt\\u0022:\\u0022([\s\S]*?)\\u0022/i);
+        if (embedded) {
+          const decodeEmbedded = value => JSON.parse(`"${value}"`);
+          return normalizeMetadata({ positivePrompt: decodeEmbedded(embedded[1]), negativePrompt: decodeEmbedded(embedded[2]) }, source);
+        }
         const jsonText = text.replace(/\b(?:NaN|Infinity|-Infinity)\b/g, 'null');
-        return normalizeMetadata(JSON.parse(jsonText), source);
+        let parsed;
+        try { parsed = JSON.parse(jsonText); }
+        catch (_) {
+          const prefix = extractJsonPrefix(jsonText);
+          if (prefix) parsed = JSON.parse(prefix);
+          else {
+            const limit = Math.min(jsonText.length, 50000);
+            const endings = [];
+            for (let i = 0; i < limit; i++) if (jsonText[i] === '}') endings.push(i + 1);
+            for (let i = endings.length - 1; i >= 0 && !parsed; i--) {
+              try { parsed = JSON.parse(jsonText.slice(0, endings[i])); } catch (_) { /* Try the next closing brace. */ }
+            }
+          }
+          if (!parsed) throw _;
+        }
+        return normalizeMetadata(parsed, source);
       } catch (_) { /* Continue as infotext. */ }
     }
   }
@@ -171,6 +191,24 @@ function normalizeMetadata(raw, source) {
     }
   }
   return parseInfotext(raw);
+}
+
+function extractJsonPrefix(text) {
+  const opener = text[0], closer = opener === '[' ? ']' : '}';
+  let depth = 0, quoted = false, escaped = false;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (quoted) {
+      if (escaped) escaped = false;
+      else if (char === '\\') escaped = true;
+      else if (char === '"') quoted = false;
+      continue;
+    }
+    if (char === '"') { quoted = true; continue; }
+    if (char === opener) depth++;
+    else if (char === closer && --depth === 0) return text.slice(0, i + 1);
+  }
+  return '';
 }
 
 function extractMetadata(arrayBuffer) {

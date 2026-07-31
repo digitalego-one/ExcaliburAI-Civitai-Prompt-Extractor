@@ -1,16 +1,10 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const result = await getStoredResult();
   render('prompt', result.positivePrompt, 'Positive prompt not found.');
-  render('negativePrompt', result.negativePrompt, 'Negative prompt not found.');
-  render('otherMetadata', result.metadataText, 'Technical metadata not found.');
   updateCount();
   updateSource(result.sourceSite);
 
-  for (const [buttonId, fieldId, emptyText] of [
-    ['copyPromptButton', 'prompt', 'Positive prompt not found.'],
-    ['copyNegativePromptButton', 'negativePrompt', 'Negative prompt not found.'],
-    ['copyMetadataButton', 'otherMetadata', 'Technical metadata not found.']
-  ]) {
+  for (const [buttonId, fieldId, emptyText] of [['copyPromptButton', 'prompt', 'Positive prompt not found.']]) {
     document.getElementById(buttonId).addEventListener('click', async () => {
       const text = document.getElementById(fieldId).textContent;
       if (!text || text === emptyText) return showToast('Nothing to copy');
@@ -21,6 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('copyPromptIcon').addEventListener('click', () => document.getElementById('copyPromptButton').click());
   document.getElementById('optionsButton').addEventListener('click', () => chrome.runtime.openOptionsPage());
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && (changes.lastResult || changes.lastCopiedPrompt)) window.location.reload();
+  });
 });
 
 function getStoredResult() {
@@ -28,8 +25,6 @@ function getStoredResult() {
     const raw = data.lastResult || {};
     resolve({
       positivePrompt: raw.positivePrompt || raw.prompt || data.lastCopiedPrompt || '',
-      negativePrompt: raw.negativePrompt || raw.negativeprompt || raw.negative_prompt || '',
-      metadataText: raw.metadataText || raw.technicalMetadata || raw.metadata || raw.parameters || '',
       sourceSite: raw.sourceSite || ''
     });
   }));

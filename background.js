@@ -7,6 +7,7 @@ const metadataCache = new Map();
 
 // Create the context menu when the extension is installed
 chrome.runtime.onInstalled.addListener(() => {
+  clearSession();
   chrome.contextMenus.create({
     id: "copyPrompt",
     title: "Copy prompt if any",
@@ -14,10 +15,13 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+chrome.runtime.onStartup.addListener(clearSession);
+
 // Listen for context menu clicks
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === "copyPrompt" && info.srcUrl && tab.id) {
     try {
+      await clearSession();
       console.log("Attempting to fetch image:", info.srcUrl);
 
       // Retrieve settings
@@ -78,6 +82,10 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
 function storeResult(result) {
   return new Promise(resolve => chrome.storage.local.set({ lastResult: result, lastCopiedPrompt: result.positivePrompt || '' }, resolve));
+}
+
+function clearSession() {
+  return new Promise(resolve => chrome.storage.local.remove(['lastResult', 'lastCopiedPrompt'], resolve));
 }
 
 function isCivitaiImageUrl(url) {

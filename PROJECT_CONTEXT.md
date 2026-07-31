@@ -36,6 +36,8 @@ Parser version `1.10.0` also reads negative CLIP text from semantic node titles 
 
 Popup/options version `1.11.0` renders negative prompt and technical metadata as full fields, normalizes stored result aliases, wires Options to `chrome.runtime.openOptionsPage`, and removes Enable notifications.
 
+Version `1.13.0` records negative prompt and technical metadata as unresolved and removes both from the popup. The popup is positive-only, resets stored session data at startup and per extraction, refreshes on storage changes, and supports trailing-binary JPEG ComfyUI JSON.
+
 ComfyUI workflow links are resolved before direct text-node fallback so both positive and negative CLIP text nodes remain available to the popup.
 
 ## Workspace folders

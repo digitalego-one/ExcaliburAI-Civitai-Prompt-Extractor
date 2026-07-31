@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.13.0 - 2026-07-31
+
+- Recorded as unresolved: negative prompt and technical metadata extraction/display are not reliable and were removed from the popup design.
+- Restored a positive-only popup; the character count now appears in the prompt footer.
+- Added session reset on browser startup and every context-menu extraction, plus popup refresh when a new result is stored.
+- Fixed positive prompt extraction from JPEG EXIF ComfyUI JSON with trailing binary payloads.
+- Confirmed batch 4 PNG `675a...` has no metadata chunks and cannot yield a prompt from the local file alone.
+
 ## 1.11.0 - 2026-07-31
 
 - Rendered negative prompt and technical metadata as full popup fields with scrolling and copy actions.
