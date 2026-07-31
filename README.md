@@ -1,205 +1,99 @@
-# ExcaliburAI - Civitai Prompt Extractor [v1.2.0]
+# ExcaliburAI - Civitai Prompt Extractor
 
-![ExcaliburAI Logo](./icons/icon128.png)
+![ExcaliburAI logo](./icons/icon128.png)
 
-**ExcaliburAI - Civitai Prompt Extractor** is a powerful Chrome extension designed for AI enthusiasts, digital artists, and creators. It effortlessly extracts and organizes essential prompt data directly from AI-generated images' EXIF metadata, allowing you to manage and utilize your prompts with ease.
+Release `v1.14.0` is a positive-prompt-first browser extension for Chrome and Firefox. Right-click an image, choose **Copy prompt if any**, and the extracted positive prompt is copied to the clipboard and shown in the popup.
 
-## 📄 Table of Contents
+## What It Does
 
-- [🎉 Now Live on Chrome Web Store!](#-now-live-on-chrome-web-store)
-- [🚀 Support us on Product Hunt](#-support-us-on-product-hunt)
-- [📖 Features](#-features)
-- [🚀 Installation](#-installation)
-- [🖥️ Usage](#️-usage)
-- [⚙️ Configuration](#️-configuration)
-- [📸 Screenshots](#-screenshots)
-- [🔧 Development](#-development)
-- [🤝 Contributing](#-contributing)
-- [📚 Credits](#-credits)
-- [📜 License](#-license)
-- [📞 Support](#-support)
+- Extracts positive prompts from metadata embedded in AI-generated images.
+- Copies the positive prompt with one context-menu action.
+- Shows the current prompt in a compact, logo-inspired popup.
+- Replaces stale popup results when a new image is processed.
+- Starts with an empty popup after the browser starts.
+- Supports a light options page for allowed image domains.
+- Uses a CivitAI API fallback for eligible CivitAI image URLs when embedded metadata is unavailable.
 
-## 🎉 Now Live on Chrome Web Store!
+## Supported Metadata
 
-Excited to use **ExcaliburAI - Civitai Prompt Extractor**? You can install it directly from the [Chrome Web Store](https://chromewebstore.google.com/detail/excaliburai-civitai-promp/jdkgelpgnofafbgbbmlgngehmlkllaah).
+The parser is dependency-light and currently understands these sources when the metadata is actually present in the downloaded image:
 
-## 🚀 Support us on Product Hunt
+- PNG `tEXt`, `iTXt`, and `zTXt` prompt/workflow chunks.
+- ComfyUI API prompt maps and UI workflows, including `workflow.nodes`, CLIP text nodes, sampler links, and reroute links.
+- JPEG APP1/EXIF `UserComment`, including UTF-16 `UNICODE` payloads and CivitAI/ComfyUI JSON.
+- WebP EXIF and XMP metadata, including CivitAI preview variants and nested Krea/Swarm prompt parameters.
+- A1111/Forge-style infotext when positive prompt boundaries are explicit.
 
-We recently launched on [Product Hunt](https://www.producthunt.com/posts/excaliburai-civitai-prompt-extractor). Your upvote will make a significant difference and help us reach a wider audience. Check it out and support us by leaving an upvote!
+The extension does not invent metadata. Images that have been recompressed, stripped of EXIF/XMP/PNG text chunks, or contain only pixels cannot yield a prompt locally. Preview and full-size images can both work; the deciding factor is whether the downloaded variant still contains readable metadata.
 
-## 📖 Features
+## Current Scope and Backlog
 
-- **🖼️ Context Menu Integration**: Right-click on any AI-generated image and select **"Copy Prompt If Any"** to instantly extract prompt data.
-- **🖥️ Interactive Popup Interface**:
-  - **🔍 Organized Sections**: View **Prompt**, **Negative Prompt**, and **Other Metadata** in clearly labeled sections.
-  - **📋 Individual Copy Buttons**: Copy each section separately with dedicated **Copy** buttons.
-  - **💡 Responsive Design**: Clean layout that adapts to various screen sizes without horizontal scrolling.
-  - **🔒 Secure Handling**: All data is processed locally within your browser, ensuring privacy and security.
-  - **⚡ Quick Access**: Instantly access the latest copied information directly from the popup.
-- **✂️ Intelligent Parsing**: Automatically parses and formats EXIF data to accurately separate prompts and metadata.
-- **⚙️ Customizable Settings**:
-  - **Enable/Disable Notifications**: Choose whether to receive alerts upon successful or failed copy actions.
-  - **Specify Allowed Domains**: Restrict the extension's functionality to specific websites for enhanced security.
-- **🚀 In-Memory Caching**: Optimizes performance by caching EXIF data during your browsing session.
-- **🔒 Privacy-Focused**: Operates entirely within your browser without transmitting any data externally.
+The popup intentionally shows only the positive prompt in this release. Negative prompt and technical metadata extraction/display were investigated across the fixture corpus but remain unreliable across the observed generator formats, so those sections were removed rather than presenting misleading output.
 
-## 🚀 Installation
+Backlog:
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/digitalego-one/ExcaliburAI-Civitai-Prompt-Extractor
-   ```
-2. **Navigate to the Directory**:
-   ```bash
-   cd ExcaliburAI-Civitai-Prompt-Extractor
-   ```
-3. **Load the Extension in Chrome**:
-   - Open Chrome and navigate to `chrome://extensions/`.
-   - Enable **Developer mode** by toggling the switch in the top right corner.
-   - Click on **Load unpacked** and select the cloned repository folder.
+- Build a dedicated, format-by-format negative/technical metadata model with golden fixtures.
+- Add broader provider-specific support for Krea, Forge, CivitAI transformations, and custom ComfyUI nodes.
+- Add automated browser tests for Chrome and Firefox context-menu sessions.
+- Improve privacy and permission scoping for non-CivitAI image hosts.
 
-## 🖥️ Usage
+## Install From Source
 
-1. **Extracting Prompts**:
-   - Navigate to any AI-generated image on supported websites.
-   - **Right-click** on the image and select **"Copy Prompt If Any"** from the context menu.
-   
-2. **Viewing Extracted Data**:
-   - Click on the **ExcaliburAI** toolbar icon to open the popup.
-   - The popup displays the **Prompt**, **Negative Prompt**, and **Other Metadata** in separate sections.
-   
-3. **Copying Data**:
-   - Use the **Copy** buttons next to each section to copy the respective data to your clipboard.
+### Chrome
 
-## ⚙️ Configuration
+1. Open `chrome://extensions`.
+2. Enable **Developer mode**.
+3. Click **Load unpacked**.
+4. Select this `extension` directory.
 
-Access the extension's settings to customize its behavior:
+### Firefox
 
-1. **Open Options Page**:
-   - Click on the **ExcaliburAI** toolbar icon.
-   - Click on the **Settings** or **Options** button within the popup, or navigate to `chrome://extensions/`, find **ExcaliburAI**, and click **Details** > **Extension options**.
+1. Open `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on**.
+3. Select `manifest.json` from this directory.
 
-2. **Configure Settings**:
-   - **Enable/Disable Notifications**: Toggle to receive or suppress notifications.
-   - **Specify Allowed Domains**: Enter domains where the extension is permitted to extract prompt data.
+## Usage
 
-## 📸 Screenshots
+1. Open an AI-generated image.
+2. Right-click the image.
+3. Choose **Copy prompt if any**.
+4. Paste the prompt wherever you need it, or open the extension popup to review it.
 
-![Context menu](./screenshots/menu.jpg)
-*Easy-to-find Context Menu Button*
+Each new context-menu extraction starts a new session. Reload the extension after installing a new local build.
 
-![Popup Interface](./screenshots/popup.jpg)
-*Clean and organized popup displaying Prompt, Negative Prompt, and Other Metadata.*
+## Packaging
 
-![Options Page](./screenshots/options.jpg)
-*Settings page allowing customization of notifications and allowed domains.*
+The release package must contain the files inside this directory, with `manifest.json` at the ZIP root. Do not package the parent directory or `.git` folder.
 
-## 🔧 Development
-
-### Prerequisites
-
-- **Node.js & npm**: Ensure you have Node.js and npm installed for managing dependencies (if any).
-
-### Project Structure
-
-```
-ExcaliburAI-Prompt-Extractor/
-│
-├── icons/
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-│
-├── screenshots/
-│   ├── menu.jpg
-│   ├── popup.jpg
-│   └── options.jpg
-│
-├── background.js
-├── content.js
-├── exif.js
-├── popup.html
-├── popup.js
-├── options.html
-├── options.js
-├── manifest.json
-├── README.md
-└── LICENSE
+```bash
+cd extension
+zip -r ../release/excaliburai-civitai-prompt-extractor-v1.14.0.zip . \
+  -x '.git/*' '.DS_Store' 'screenshots/*'
 ```
 
-### Building the Extension
+Firefox can upload the same ZIP as an XPI-compatible package. See [RELEASE.md](./RELEASE.md) for the store submission checklist and reviewer notes.
 
-1. **Install Dependencies**:
-   ```bash
-   npm install
-   ```
-2. **Run Development Server** (if applicable):
-   ```bash
-   npm start
-   ```
-3. **Package the Extension**:
-   - Navigate to `chrome://extensions/`.
-   - Click on **Pack extension**.
-   - Select the extension directory and follow the prompts.
+## Development Notes
 
-## 🤝 Contributing
+The canonical Git checkout is this directory. `metadata.js` is intentionally readable and has no build step. The fixture corpus used during parser work is kept outside the release package in the workspace `fixtures/` directory.
 
-Contributions are welcome! Follow these steps to contribute to **ExcaliburAI - Civitai Prompt Extractor**:
+Run the lightweight checks from this directory:
 
-1. **Fork the Repository**:
-   - Click the **Fork** button at the top right of this page.
-   
-2. **Create a Feature Branch**:
-   ```bash
-   git checkout -b feature/YourFeatureName
-   ```
-   
-3. **Commit Your Changes**:
-   ```bash
-   git commit -m "Add your feature"
-   ```
-   
-4. **Push to the Branch**:
-   ```bash
-   git push origin feature/YourFeatureName
-   ```
-   
-5. **Open a Pull Request**:
-   - Navigate to the original repository.
-   - Click on **Compare & pull request**.
-   - Provide a clear description of your changes and submit.
+```bash
+node --check background.js
+node --check metadata.js
+node --check popup.js
+node --check options.js
+node -e "JSON.parse(require('fs').readFileSync('manifest.json'))"
+```
 
-### Guidelines
+## Links
 
-- **Code Quality**: Ensure your code follows best practices and is well-documented.
-- **Testing**: Test your changes thoroughly before submitting.
-- **Respect the Community**: Be respectful and constructive in your interactions.
+- [GitHub repository](https://github.com/digitalego-one/ExcaliburAI-Civitai-Prompt-Extractor)
+- [Chrome Web Store listing](https://chromewebstore.google.com/detail/excaliburai-civitai-promp/jdkgelpgnofafbgbbmlgngehmlkllaah)
+- [Issues](https://github.com/digitalego-one/ExcaliburAI-Civitai-Prompt-Extractor/issues)
+- [Digital Ego One](https://digitalego.one)
 
-## 📚 Credits
+## License
 
-**[exif-js](https://github.com/exif-js/exif-js)**: JavaScript library for reading EXIF data from images.
-
-## 📜 License
-
-Distributed under the [Proprietary License](./LICENSE.txt)
-
-## 📞 Support
-
-Have questions or need assistance? Reach out to us:
-
-- **Email**: [hello@digitalego.one](mailto:hello@digitalego.one)
-- **Issues**: [GitHub Issues](https://github.com/digitalego-one/ExcaliburAI-Civitai-Prompt-Extractor/issues)
-- **Website**: [https://www.excaliburai.top](https://excaliburai.top/)
-
-
----
-
-*Thank you for using **ExcaliburAI - Civitai Prompt Extractor**! We strive to continuously improve and provide the best experience for our users.*
-
-
----
-
-  ![License](https://img.shields.io/badge/license-PROPRIETARY-blue.svg)
-  ![Version](https://img.shields.io/badge/version-1.2.0-brightgreen.svg)
-
-
+See [LICENSE.txt](./LICENSE.txt).
