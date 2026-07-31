@@ -61,7 +61,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         result = await fetchCivitaiMetadata(info.srcUrl);
       }
       if (!result || !result.positivePrompt) {
-        await storeResult({ status: 'not-found', message: 'No readable positive prompt found.' });
+        await storeResult({ ...(result || {}), status: 'not-found', message: 'No readable positive prompt found.', sourceSite: classifySourceSite(tab.url) });
         return;
       }
       await storeResult({ ...result, status: 'found', sourceSite: classifySourceSite(tab.url) });

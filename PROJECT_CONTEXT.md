@@ -28,6 +28,10 @@ Popup version `1.6.0` keeps `v1.5.0` available as a rollback point, removes the 
 
 Popup version `1.7.0` uses a white application background, removes the bottom copy/status row, and keeps copy controls text-only.
 
+Popup version `1.8.0` preserves negative prompts and technical metadata in partial results, including ComfyUI workflow sampler fields; rollback backup is `v1.7.0-stable`.
+
+ComfyUI workflow links are resolved before direct text-node fallback so both positive and negative CLIP text nodes remain available to the popup.
+
 ## Workspace folders
 
 - `extension/`: canonical extension source and Git history.

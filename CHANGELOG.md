@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.0 - 2026-07-31
+
+- Preserved `v1.7.0` as `v1.7.0-stable` before changing extraction behavior.
+- Preserved negative prompts and technical metadata when a positive prompt is incomplete or absent.
+- Added technical metadata extraction for ComfyUI workflow sampler and model fields.
+- Improved infotext technical-section detection when fields follow a comma instead of a newline.
+- Fixed ComfyUI workflow parsing so linked negative prompt nodes are not bypassed by direct text-node fallback.
+
 ## 1.7.0 - 2026-07-31
 
 - Restored a white application background.

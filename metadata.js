@@ -112,7 +112,7 @@ function parseInfotext(raw) {
   const text = cleanPositiveSource(String(raw || '').replace(/^UNICODE\s*/i, '').trim());
   if (!text) return null;
   const negativeMatch = text.match(/(?:^|\n)\s*Negative prompt\s*:\s*/i);
-  const metadataMatch = text.match(/(?:^|\n)\s*(?:Steps|Seed|Sampler|Size|Model hash)\s*:/i);
+  const metadataMatch = text.match(/(?:^|\n|,\s*)(?:Steps|Seed|Sampler|Size|Model hash)\s*:/i);
   const positiveEnd = negativeMatch ? negativeMatch.index : (metadataMatch ? metadataMatch.index : text.length);
   const negativeStart = negativeMatch ? negativeMatch.index + negativeMatch[0].length : -1;
   const negativeEnd = negativeStart >= 0 && metadataMatch ? metadataMatch.index : text.length;
@@ -148,20 +148,21 @@ function normalizeMetadata(raw, source) {
       if (workflowResult && workflowResult.positivePrompt) return workflowResult;
     }
     const prompt = raw.positivePrompt || raw.prompt || raw.saved_prompt || raw.resolved_prompt || raw.source_prompt || raw.prompt_log_line;
-    const negative = raw.negativePrompt || raw.negativeprompt || raw.negative_prompt;
+    const negativeKey = Object.keys(raw).find(key => /^(negativePrompt|negativeprompt|negative_prompt)$/i.test(key));
+    const negative = negativeKey ? raw[negativeKey] : '';
     if (prompt || negative) return {
       positivePrompt: cleanPositiveSource(String(prompt || '').trim()),
       negativePrompt: cleanPositiveSource(String(negative || '').trim()), rawText: JSON.stringify(raw, null, 2),
       metadataText: Object.entries(raw).filter(([k]) => !/prompt/i.test(k)).map(([k, v]) => `${k}: ${v}`).join('\n'),
       source, confidence: 'high'
     };
+    const workflowResult = parseComfyWorkflow(raw);
+    if (workflowResult && workflowResult.positivePrompt) return workflowResult;
     const directTextNode = Object.values(raw).find(node => node && node.inputs && typeof node.inputs.text === 'string');
     if (directTextNode) return {
       positivePrompt: cleanPositiveSource(directTextNode.inputs.text), negativePrompt: '',
-      rawText: JSON.stringify(raw, null, 2), metadataText: '', source: 'comfy-workflow', confidence: 'medium'
+      rawText: JSON.stringify(raw, null, 2), metadataText: formatWorkflowMetadata(raw), source: 'comfy-workflow', confidence: 'medium'
     };
-    const workflowResult = parseComfyWorkflow(raw);
-    if (workflowResult && workflowResult.positivePrompt) return workflowResult;
     for (const [key, value] of Object.entries(raw)) {
       if (value && typeof value === 'object' && /prompt|parameter|params|meta|info/i.test(key) && !/workflow/i.test(key)) {
         const nested = normalizeMetadata(value, source);
@@ -274,9 +275,24 @@ function parseComfyWorkflow(workflow) {
   const allTexts = Object.values(textNodes);
   return {
     positivePrompt: cleanPositiveSource(positives[0] || promptCandidates[0] || allTexts[0] || ''),
-    negativePrompt: negatives[0] || '', rawText, metadataText: '', source: 'comfy-workflow',
+    negativePrompt: negatives[0] || '', rawText, metadataText: formatWorkflowMetadata(graph), source: 'comfy-workflow',
     confidence: positives.length ? 'high' : (allTexts.length ? 'medium' : 'low')
   };
+}
+
+function formatWorkflowMetadata(graph) {
+  const lines = [];
+  const technical = /^(seed|steps|cfg|cfg_scale|sampler_name|scheduler|denoise|width|height|batch_size|model|ckpt_name|checkpoint|vae_name)$/i;
+  const visit = value => {
+    if (!value || typeof value !== 'object') return;
+    if (Array.isArray(value)) return value.forEach(visit);
+    for (const [key, child] of Object.entries(value)) {
+      if (technical.test(key) && (typeof child === 'string' || typeof child === 'number')) lines.push(`${key}: ${child}`);
+      else if (child && typeof child === 'object') visit(child);
+    }
+  };
+  visit(graph);
+  return [...new Set(lines)].join('\n');
 }
 
 function cleanPositiveSource(value) {
