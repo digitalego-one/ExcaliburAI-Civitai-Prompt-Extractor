@@ -20,15 +20,25 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   document.getElementById('copyPromptIcon').addEventListener('click', () => document.getElementById('copyPromptButton').click());
+  document.getElementById('optionsButton').addEventListener('click', () => chrome.runtime.openOptionsPage());
 });
 
 function getStoredResult() {
-  return new Promise(resolve => chrome.storage.local.get(['lastResult', 'lastCopiedPrompt'], data => resolve(data.lastResult || {
-    positivePrompt: data.lastCopiedPrompt || '', negativePrompt: '', metadataText: '', source: ''
-  })));
+  return new Promise(resolve => chrome.storage.local.get(['lastResult', 'lastCopiedPrompt'], data => {
+    const raw = data.lastResult || {};
+    resolve({
+      positivePrompt: raw.positivePrompt || raw.prompt || data.lastCopiedPrompt || '',
+      negativePrompt: raw.negativePrompt || raw.negativeprompt || raw.negative_prompt || '',
+      metadataText: raw.metadataText || raw.technicalMetadata || raw.metadata || raw.parameters || '',
+      sourceSite: raw.sourceSite || ''
+    });
+  }));
 }
 
-function render(id, value, fallback) { document.getElementById(id).textContent = value || fallback; }
+function render(id, value, fallback) {
+  const text = value && typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value || '');
+  document.getElementById(id).textContent = text || fallback;
+}
 
 function updateCount() {
   const value = document.getElementById('prompt').textContent;

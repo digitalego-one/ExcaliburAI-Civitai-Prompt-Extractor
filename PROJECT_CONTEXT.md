@@ -34,6 +34,8 @@ Parser version `1.9.0` resolves ComfyUI UI workflows under `workflow.nodes`, fol
 
 Parser version `1.10.0` also reads negative CLIP text from semantic node titles when a ComfyUI graph has no usable negative sampler link; the fixture corpus audit result is 88 positive results, 19 with negative prompt, and 11 with technical metadata.
 
+Popup/options version `1.11.0` renders negative prompt and technical metadata as full fields, normalizes stored result aliases, wires Options to `chrome.runtime.openOptionsPage`, and removes Enable notifications.
+
 ComfyUI workflow links are resolved before direct text-node fallback so both positive and negative CLIP text nodes remain available to the popup.
 
 ## Workspace folders

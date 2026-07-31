@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.11.0 - 2026-07-31
+
+- Rendered negative prompt and technical metadata as full popup fields with scrolling and copy actions.
+- Normalized alternate stored result keys so metadata is not lost at the popup boundary.
+- Connected the popup Options button to the options page.
+- Removed the Enable notifications setting and redesigned the remaining domain setting.
+
 ## 1.10.0 - 2026-07-31
 
 - Audited 163 fixture files across PNG, JPEG, WebP, preview, and errored batches.

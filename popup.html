@@ -34,6 +34,7 @@
     .prompt-box { overflow: hidden; border: 1px solid var(--line); border-radius: 11px; background: var(--field); }
     .prompt-box:focus-within { border-color: #92c5b0; box-shadow: 0 0 0 3px rgba(22,125,91,.10); }
     .content-field { display: block; width: 100%; min-height: 168px; max-height: 220px; overflow: auto; padding: 12px; white-space: pre-wrap; overflow-wrap: anywhere; background: transparent; color: var(--ink); font-size: 13px; line-height: 1.48; }
+    .compact-field { min-height: 48px; max-height: 150px; }
     .prompt-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 9px 8px; border-top: 1px solid var(--line); color: var(--soft-muted); font-size: 10px; }
     .copy-button, .small-copy { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: 9px; cursor: pointer; font-weight: 700; }
     .copy-button { min-height: 34px; margin-top: 10px; padding: 0 12px; border: 0; background: var(--accent); color: #fff; font-size: 12px; }
@@ -52,12 +53,12 @@
   <main class="popup" aria-label="Prompt Extractor">
     <header class="topbar">
       <div class="brand"><div class="brand-mark" aria-hidden="true"><img src="icons/icon128.png" alt=""></div><div><h1 class="brand-title">Prompt Extractor</h1><p class="brand-subtitle">Made by Digital Ego One</p></div></div>
-      <div class="topbar-actions"><div class="source is-unavailable" id="source" title="CivitAI availability"><span class="source-dot"></span><span id="sourceLabel">Unavailable</span></div><button class="icon-button" aria-label="More options" title="More options">⋯</button></div>
+      <div class="topbar-actions"><div class="source is-unavailable" id="source" title="CivitAI availability"><span class="source-dot"></span><span id="sourceLabel">Unavailable</span></div><button class="icon-button" id="optionsButton" aria-label="Open options" title="Options">⋯</button></div>
     </header>
     <div class="content">
       <section class="section"><div class="section-head"><h2 class="section-title">✓ Positive prompt</h2><span class="count" id="count">0 chars</span></div><div class="prompt-box"><div id="prompt" class="content-field" tabindex="0">Positive prompt not found.</div><div class="prompt-footer"><span>Extracted text</span><button class="icon-button" id="copyPromptIcon" aria-label="Copy positive prompt" title="Copy positive prompt"></button></div></div><button class="copy-button" id="copyPromptButton"><span>Copy positive prompt</span></button></section>
-      <section class="section"><div class="section-head"><h2 class="section-title">× Negative prompt</h2></div><div class="empty-row"><div class="empty-copy"><span class="empty-icon">−</span><span id="negativePrompt">Negative prompt not found.</span></div><button class="small-copy" id="copyNegativePromptButton">Copy</button></div></section>
-      <section class="section"><div class="section-head"><h2 class="section-title">≡ Technical metadata</h2></div><div class="empty-row"><div class="empty-copy"><span class="empty-icon">i</span><span id="otherMetadata">Technical metadata not found.</span></div><button class="small-copy" id="copyMetadataButton">Copy</button></div></section>
+      <section class="section"><div class="section-head"><h2 class="section-title">× Negative prompt</h2></div><div class="prompt-box"><div id="negativePrompt" class="content-field compact-field" tabindex="0">Negative prompt not found.</div><div class="prompt-footer"><span>Extracted text</span></div></div><button class="copy-button" id="copyNegativePromptButton"><span>Copy negative prompt</span></button></section>
+      <section class="section"><div class="section-head"><h2 class="section-title">≡ Technical metadata</h2></div><div class="prompt-box"><div id="otherMetadata" class="content-field compact-field" tabindex="0">Technical metadata not found.</div><div class="prompt-footer"><span>Extracted metadata</span></div></div><button class="copy-button" id="copyMetadataButton"><span>Copy technical metadata</span></button></section>
     </div>
   </main>
   <div id="toast" role="status" aria-live="polite"></div>
