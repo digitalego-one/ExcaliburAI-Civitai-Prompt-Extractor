@@ -128,15 +128,40 @@ function parseInfotext(raw) {
 
 function normalizeMetadata(raw, source) {
   if (!raw) return null;
+  if (typeof raw === 'string') {
+    const text = raw.trim();
+    if (/^[{[]/.test(text)) {
+      try {
+        const jsonText = text.replace(/\b(?:NaN|Infinity|-Infinity)\b/g, 'null');
+        return normalizeMetadata(JSON.parse(jsonText), source);
+      } catch (_) { /* Continue as infotext. */ }
+    }
+  }
   if (typeof raw === 'object' && !Array.isArray(raw)) {
-    if (raw.prompt || raw.positivePrompt || raw.negativePrompt) return {
-      positivePrompt: cleanPositiveSource(String(raw.positivePrompt || raw.prompt || '').trim()),
-      negativePrompt: String(raw.negativePrompt || '').trim(), rawText: JSON.stringify(raw, null, 2),
+    for (const key of ['prompt', 'parameters', 'workflow']) {
+      if (typeof raw[key] !== 'string' || !/^[{[]/.test(raw[key].trim())) continue;
+      const nestedJson = normalizeMetadata(raw[key], source);
+      if (nestedJson && nestedJson.positivePrompt) return nestedJson;
+    }
+    if (raw.workflow) {
+      const workflowResult = parseComfyWorkflow(raw.workflow);
+      if (workflowResult && workflowResult.positivePrompt) return workflowResult;
+    }
+    const prompt = raw.positivePrompt || raw.prompt || raw.saved_prompt || raw.resolved_prompt || raw.source_prompt || raw.prompt_log_line;
+    const negative = raw.negativePrompt || raw.negativeprompt || raw.negative_prompt;
+    if (prompt || negative) return {
+      positivePrompt: cleanPositiveSource(String(prompt || '').trim()),
+      negativePrompt: cleanPositiveSource(String(negative || '').trim()), rawText: JSON.stringify(raw, null, 2),
       metadataText: Object.entries(raw).filter(([k]) => !/prompt/i.test(k)).map(([k, v]) => `${k}: ${v}`).join('\n'),
       source, confidence: 'high'
     };
-    if (raw.workflow) {
-      return parseComfyWorkflow(raw.workflow);
+    const workflowResult = parseComfyWorkflow(raw);
+    if (workflowResult && workflowResult.positivePrompt) return workflowResult;
+    for (const [key, value] of Object.entries(raw)) {
+      if (value && typeof value === 'object' && !/metadata|workflow/i.test(key)) {
+        const nested = normalizeMetadata(value, source);
+        if (nested && nested.positivePrompt) return nested;
+      }
     }
   }
   return parseInfotext(raw);
@@ -147,17 +172,55 @@ function extractMetadata(arrayBuffer) {
   const png = readPngText(arrayBuffer);
   if (Object.keys(png).length) {
     const candidate = png.parameters || png.prompt || png.workflow;
-    const result = normalizeMetadata(candidate ? (png.workflow ? { workflow: candidate, prompt: png.prompt } : candidate) : null, png.workflow ? 'comfy-workflow' : 'png-text');
+    const result = normalizeMetadata(candidate ? (png.workflow ? { workflow: png.workflow, prompt: png.prompt } : candidate) : null, png.workflow ? 'comfy-workflow' : 'png-text');
     if (result && result.positivePrompt) return result;
   }
   if (decodeBytes(bytes.slice(0, 4), 'ascii') === 'RIFF') {
     const webp = readWebpMetadata(arrayBuffer); const result = normalizeMetadata(parseXmpText(webp.XMP), 'webp-xmp');
     if (result && result.positivePrompt) return result;
   }
+  const rawJpegComment = readJpegRawComment(bytes);
+  if (rawJpegComment) {
+    const result = normalizeMetadata(rawJpegComment, 'jpeg-exif');
+    if (result && result.positivePrompt) return result;
+  }
   const exif = typeof EXIF !== 'undefined' ? EXIF.readFromBinaryFile(arrayBuffer) : {};
   const webp = decodeBytes(bytes.slice(0, 4), 'ascii') === 'RIFF' ? readWebpMetadata(arrayBuffer) : {};
   const comment = exif.UserComment || exif.userComment || exif.XPComment || exif.ImageDescription || webp.EXIF && (webp.EXIF.UserComment || webp.EXIF.XPComment || webp.EXIF.ImageDescription) || webp.EXIF_TEXT;
   return normalizeMetadata(decodeExifComment(comment), 'jpeg-exif');
+}
+
+function readJpegRawComment(bytes) {
+  if (bytes[0] !== 0xff || bytes[1] !== 0xd8) return '';
+  let offset = 2;
+  while (offset + 4 <= bytes.length) {
+    if (bytes[offset] !== 0xff) { offset++; continue; }
+    const marker = bytes[offset + 1];
+    if (marker === 0xda || marker === 0xd9) break;
+    const length = (bytes[offset + 2] << 8) | bytes[offset + 3];
+    const end = offset + 2 + length;
+    if (end > bytes.length) break;
+    if (marker === 0xe1) {
+      const segment = bytes.slice(offset + 4, end);
+      const text = decodeExifPayloadText(segment);
+      if (text) return text;
+    }
+    offset = end;
+  }
+  return '';
+}
+
+function decodeExifPayloadText(bytes) {
+  for (let i = 0; i + 7 < bytes.length; i++) {
+    const marker = decodeBytes(bytes.slice(i, i + 7), 'ascii');
+    if (marker !== 'UNICODE' && marker !== 'ASCII\0') continue;
+    let dataStart = i + 7;
+    while (dataStart < bytes.length && bytes[dataStart] === 0) dataStart++;
+    const encoding = marker === 'UNICODE' ? 'utf-16le' : 'ascii';
+    const text = decodeBytes(bytes.slice(dataStart), encoding).replace(/\0+$/, '').trim();
+    if (text && /(?:prompt|negative prompt|steps|seed|sampler|score[_-]\d)/i.test(text)) return text;
+  }
+  return '';
 }
 
 function decodeExifComment(value) {
@@ -186,21 +249,24 @@ function parseComfyWorkflow(workflow) {
   const rawText = typeof workflow === 'string' ? workflow : JSON.stringify(workflow);
   let graph;
   try { graph = typeof workflow === 'string' ? JSON.parse(workflow) : workflow; } catch (_) { return { positivePrompt: '', negativePrompt: '', rawText, metadataText: '', source: 'comfy-workflow', confidence: 'low' }; }
-  const nodes = graph && !Array.isArray(graph) ? graph : {};
+  const nodes = Array.isArray(graph) ? Object.fromEntries(graph.map(node => [String(node.id), node])) : (graph && typeof graph === 'object' ? graph : {});
   const textNodes = {};
+  const promptCandidates = [];
   const promptRefs = [];
   for (const [id, node] of Object.entries(nodes)) {
-    if (!node || !node.inputs) continue;
-    const text = node.inputs.text;
+    if (!node) continue;
+    const inputs = node.inputs || {};
+    const text = inputs.text || (Array.isArray(node.widgets_values) && /(?:CLIPTextEncode|text|prompt)/i.test(`${node.type || ''} ${node.properties?.['Node name for S&R'] || ''}`) ? node.widgets_values[0] : '');
     if (typeof text === 'string') textNodes[id] = text.trim();
-    if (node.inputs.positive && Array.isArray(node.inputs.positive)) promptRefs.push({ type: 'positive', ref: node.inputs.positive[0] });
-    if (node.inputs.negative && Array.isArray(node.inputs.negative)) promptRefs.push({ type: 'negative', ref: node.inputs.negative[0] });
+    for (const key of ['saved_prompt', 'resolved_prompt', 'source_prompt', 'prompt_log_line']) if (typeof inputs[key] === 'string') promptCandidates.push(inputs[key]);
+    if (inputs.positive && Array.isArray(inputs.positive)) promptRefs.push({ type: 'positive', ref: inputs.positive[0] });
+    if (inputs.negative && Array.isArray(inputs.negative)) promptRefs.push({ type: 'negative', ref: inputs.negative[0] });
   }
   const positives = promptRefs.filter(x => x.type === 'positive').map(x => textNodes[x.ref]).filter(Boolean);
   const negatives = promptRefs.filter(x => x.type === 'negative').map(x => textNodes[x.ref]).filter(Boolean);
   const allTexts = Object.values(textNodes);
   return {
-    positivePrompt: cleanPositiveSource(positives[0] || (allTexts.length === 1 ? allTexts[0] : '')),
+    positivePrompt: cleanPositiveSource(positives[0] || promptCandidates[0] || (allTexts.length === 1 ? allTexts[0] : '')),
     negativePrompt: negatives[0] || '', rawText, metadataText: '', source: 'comfy-workflow',
     confidence: positives.length ? 'high' : (allTexts.length ? 'medium' : 'low')
   };

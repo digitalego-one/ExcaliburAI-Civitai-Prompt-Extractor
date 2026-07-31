@@ -17,6 +17,9 @@
 - Prevented XML, JSON, and technical metadata strings from being returned as positive prompt.
 - Avoided treating generic XMP creator/history values such as `ai` as a prompt.
 - Added robust WebP EXIF `UNICODE` marker handling, including extra NUL padding found in Civitai previews.
+- Added direct JPEG APP1/UserComment byte decoding to avoid mojibake introduced by legacy EXIF parsing.
+- Added JSON metadata parsing for ComfyUI/API workflows, `negativeprompt`, nested parameter objects, `saved_prompt`, and `resolved_prompt`.
+- Added tolerant parsing for ComfyUI JSON containing non-standard `NaN` values.
 
 ## Working agreement
 

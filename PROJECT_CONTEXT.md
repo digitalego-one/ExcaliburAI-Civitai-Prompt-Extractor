@@ -52,6 +52,8 @@ The extractor stores `positivePrompt`, `negativePrompt`, `metadataText`, `rawTex
 - WebP previews may store metadata in RIFF `EXIF` and `XMP ` chunks; both are checked before the Civitai API fallback.
 - Positive prompt output is deliberately strict: XML, JSON/workflow, and known technical sections are never copied as the positive prompt.
 - WebP EXIF UserComment may contain extra NUL bytes after `UNICODE`; the decoder skips that padding before UTF-16LE decoding.
+- JPEG prompt text is first decoded from raw APP1 bytes, bypassing `exif.js` string conversion that can produce CJK mojibake.
+- ComfyUI exports may be API prompt maps, UI `nodes[]`, or JSON with `NaN`; all are normalized before infotext parsing.
 
 ## Git rules
 
