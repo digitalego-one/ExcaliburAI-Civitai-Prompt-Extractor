@@ -23,6 +23,7 @@
 - Fixed ComfyUI node-link values such as `34,0` and `13,0` being mistaken for prompt text.
 - Added direct extraction of text-bearing ComfyUI nodes when sampler links are absent or custom.
 - Ignored workflow-only PNGs that contain no prompt instead of returning `is_changed` hashes.
+- Added nested `sui_image_params.prompt` extraction for Krea/Swarm WebP EXIF JSON.
 
 ## Working agreement
 

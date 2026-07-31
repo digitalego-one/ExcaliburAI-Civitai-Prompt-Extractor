@@ -163,7 +163,7 @@ function normalizeMetadata(raw, source) {
     const workflowResult = parseComfyWorkflow(raw);
     if (workflowResult && workflowResult.positivePrompt) return workflowResult;
     for (const [key, value] of Object.entries(raw)) {
-      if (value && typeof value === 'object' && /prompt|parameter|meta|info/i.test(key) && !/workflow/i.test(key)) {
+      if (value && typeof value === 'object' && /prompt|parameter|params|meta|info/i.test(key) && !/workflow/i.test(key)) {
         const nested = normalizeMetadata(value, source);
         if (nested && nested.positivePrompt) return nested;
       }
@@ -194,7 +194,7 @@ function extractMetadata(arrayBuffer) {
   const exif = typeof EXIF !== 'undefined' ? EXIF.readFromBinaryFile(arrayBuffer) : {};
   const webp = decodeBytes(bytes.slice(0, 4), 'ascii') === 'RIFF' ? readWebpMetadata(arrayBuffer) : {};
   const comment = exif.UserComment || exif.userComment || exif.XPComment || exif.ImageDescription || webp.EXIF && (webp.EXIF.UserComment || webp.EXIF.XPComment || webp.EXIF.ImageDescription) || webp.EXIF_TEXT;
-  return normalizeMetadata(decodeExifComment(comment), 'jpeg-exif');
+  return normalizeMetadata(decodeExifComment(comment), decodeBytes(bytes.slice(0, 4), 'ascii') === 'RIFF' ? 'webp-exif' : 'jpeg-exif');
 }
 
 function readJpegRawComment(bytes) {
