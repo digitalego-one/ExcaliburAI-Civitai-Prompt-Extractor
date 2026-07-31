@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.14.0 - 2026-07-31
+
+- Changed popup and Options action buttons from green/teal to logo-inspired blue.
+
 ## 1.13.0 - 2026-07-31
 
 - Recorded as unresolved: negative prompt and technical metadata extraction/display are not reliable and were removed from the popup design.
