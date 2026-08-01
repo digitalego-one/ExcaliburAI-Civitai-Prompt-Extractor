@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.3 - 2026-08-01
+
+- Updated the Firefox AMO manifest ID to the ID assigned to the published add-on: `{30c3f901-2664-40d2-87fe-c033983ca00b}`.
+
 ## 2.0.2 - 2026-08-01
 
 - Raised Firefox's minimum version to 142 so `data_collection_permissions` is supported on Firefox for Android without a validation warning.

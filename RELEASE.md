@@ -1,8 +1,8 @@
-# Release v2.0.2
+# Release v2.0.3
 
 ## Release Summary
 
-This is the stable Chrome/Firefox v2.0.2 compatibility release after the popup redesign. It focuses on reliable positive-prompt extraction, one-click clipboard copy, clean session replacement, and a compact positive-only interface.
+This is the stable Chrome/Firefox v2.0.3 compatibility release after the popup redesign. It focuses on reliable positive-prompt extraction, one-click clipboard copy, clean session replacement, and a compact positive-only interface.
 
 ## Added
 
