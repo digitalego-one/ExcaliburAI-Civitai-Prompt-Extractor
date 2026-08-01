@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0 - 2026-08-01
+
+- Added `PRIVACY_POLICY.md` for Chrome Web Store and Mozilla Add-ons publication.
+- Documented local storage, clipboard use, CivitAI API fallback, permissions, retention, and contact details.
+
 ## 2.0 - 2026-07-31
 
 - Promoted the stable release to the new `v2.0` line for Chrome and Firefox.

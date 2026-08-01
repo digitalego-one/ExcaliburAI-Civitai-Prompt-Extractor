@@ -40,6 +40,8 @@ Version `1.13.0` records negative prompt and technical metadata as unresolved an
 
 Version `2.0` uses logo-inspired blue action buttons in popup and Options; the manifest version is `2.0.0` and the release branch is `v2.0`.
 
+Privacy policy: `PRIVACY_POLICY.md` documents the current local-processing model, browser storage, clipboard behavior, CivitAI API fallback, permissions, retention, and Digital Ego One contact details.
+
 ComfyUI workflow links are resolved before direct text-node fallback so both positive and negative CLIP text nodes remain available to the popup.
 
 ## Workspace folders

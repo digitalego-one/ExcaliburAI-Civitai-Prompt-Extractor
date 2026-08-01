@@ -14,6 +14,7 @@ Right-click an image, choose **Copy Prompt If Any**, and the prompt is copied to
 - [🚀 Manual installation](#-manual-installation)
 - [🖥️ Usage](#️-usage)
 - [⚙️ Configuration](#️-configuration)
+- [🔒 Privacy Policy](#-privacy-policy)
 - [📸 Screenshots](#-screenshots)
 - [🔧 Development](#-development)
 - [🧭 Backlog and limitations](#-backlog-and-limitations)
@@ -91,6 +92,10 @@ Every new context-menu action starts a fresh session. If the popup is already op
 4. Click **Save Settings**.
 
 The old **Enable Notifications** setting was removed in the current design and release.
+
+## 🔒 Privacy Policy
+
+Read the full [Privacy Policy](./PRIVACY_POLICY.md). The extension is designed for local metadata processing and does not include analytics or advertising. A CivitAI API fallback may be used for recognizable CivitAI image URLs when embedded metadata is unavailable.
 
 ## 📸 Screenshots
 
