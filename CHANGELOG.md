@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.2 - 2026-08-01
+
+- Raised Firefox's minimum version to 142 so `data_collection_permissions` is supported on Firefox for Android without a validation warning.
+
 ## 2.0.1 - 2026-08-01
 
 - Added a Firefox-specific MV3 manifest with the required `background.scripts` fallback.

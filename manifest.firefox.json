@@ -1,12 +1,12 @@
 {
   "manifest_version": 3,
   "name": "ExcaliburAI - Civitai Prompt Extractor",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Copies the positive prompt from AI-generated images with one context-menu action, if metadata is available.",
   "browser_specific_settings": {
     "gecko": {
       "id": "excaliburai-civitai-prompt-extractor@digitalego.one",
-      "strict_min_version": "140.0",
+      "strict_min_version": "142.0",
       "data_collection_permissions": { "required": ["websiteContent"] }
     }
   },

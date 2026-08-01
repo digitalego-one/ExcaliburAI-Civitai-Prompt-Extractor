@@ -40,7 +40,7 @@ Version `1.13.0` records negative prompt and technical metadata as unresolved an
 
 Version `2.0` uses logo-inspired blue action buttons in popup and Options; the manifest version is `2.0.0` and the release branch is `v2.0`.
 
-Firefox compatibility patch `2.0.1` uses `manifest.firefox.json` with background scripts and data-collection permissions; Chrome continues to use `manifest.json` with the MV3 service worker.
+Firefox compatibility release `2.0.2` uses `manifest.firefox.json` with background scripts, data-collection permissions, and minimum Firefox 142; Chrome continues to use `manifest.json` with the MV3 service worker.
 
 Privacy policy: `PRIVACY_POLICY.md` documents the current local-processing model, browser storage, clipboard behavior, CivitAI API fallback, permissions, retention, and Digital Ego One contact details.
 
