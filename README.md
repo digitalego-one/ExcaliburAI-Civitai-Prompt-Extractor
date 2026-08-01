@@ -1,7 +1,5 @@
 # ExcaliburAI - Civitai Prompt Extractor [v2.0.3]
 
-![ExcaliburAI Logo](./icons/icon128.png)
-
 ![Release 2.0](./screenshots/release-2.0.png)
 
 **ExcaliburAI - Civitai Prompt Extractor** is a browser extension for AI artists, prompt researchers, and curious creators who want to recover the useful positive prompt hidden inside an AI-generated image.
@@ -191,6 +189,9 @@ Distributed under the [Proprietary License](./LICENSE.txt).
 - **Email**: [hello@digitalego.one](mailto:hello@digitalego.one)
 
 ---
+
+![ExcaliburAI Logo](./icons/icon128.png)
+
 
 *Thank you for using **ExcaliburAI - Civitai Prompt Extractor**. Keep creating, keep experimenting, and keep your best prompts close.*
 
