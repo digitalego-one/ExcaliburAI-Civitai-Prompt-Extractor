@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1 - 2026-08-01
+
+- Added a Firefox-specific MV3 manifest with the required `background.scripts` fallback.
+- Added Firefox `data_collection_permissions` for selected image/metadata processing.
+- Kept the Chrome MV3 service-worker manifest separate from the Firefox upload package.
+
 ## 2.0 - 2026-08-01
 
 - Added `PRIVACY_POLICY.md` for Chrome Web Store and Mozilla Add-ons publication.

@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "ExcaliburAI - Civitai Prompt Extractor",
+  "version": "2.0.1",
+  "description": "Copies the positive prompt from AI-generated images with one context-menu action, if metadata is available.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "excaliburai-civitai-prompt-extractor@digitalego.one",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": { "required": ["websiteContent"] }
+    }
+  },
+  "permissions": ["contextMenus", "scripting", "clipboardWrite", "storage"],
+  "host_permissions": ["https://civitai.com/*", "https://*.civitai.com/*"],
+  "background": { "scripts": ["background.js"] },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+  },
+  "options_ui": { "page": "options.html", "open_in_tab": true },
+  "icons": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+}

@@ -1,8 +1,8 @@
-# Release v2.0
+# Release v2.0.1
 
 ## Release Summary
 
-This is the stable Chrome/Firefox v2.0 release after the popup redesign. It focuses on reliable positive-prompt extraction, one-click clipboard copy, clean session replacement, and a compact positive-only interface.
+This is the stable Chrome/Firefox v2.0.1 compatibility release after the popup redesign. It focuses on reliable positive-prompt extraction, one-click clipboard copy, clean session replacement, and a compact positive-only interface.
 
 ## Added
 
@@ -64,3 +64,5 @@ node -e "JSON.parse(require('fs').readFileSync('manifest.json'))"
 3. Provide reviewer notes explaining context-menu extraction and the readable source.
 4. Confirm data collection declarations and requested permissions.
 5. Submit for review and signing.
+
+The Firefox package uses `manifest.firefox.json` renamed to `manifest.json` at the XPI root. The Chrome package uses the regular `manifest.json` with `background.service_worker`.
