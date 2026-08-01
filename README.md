@@ -2,6 +2,8 @@
 
 ![ExcaliburAI Logo](./icons/icon128.png)
 
+![Release 2.0](./screenshots/release-2.0.png)
+
 **ExcaliburAI - Civitai Prompt Extractor** is a browser extension for AI artists, prompt researchers, and curious creators who want to recover the useful positive prompt hidden inside an AI-generated image.
 
 Right-click an image, choose **Copy Prompt If Any**, and the prompt is copied to your clipboard in one click. Open the popup when you want to review the current result, see its character count, or copy it again.
@@ -99,14 +101,11 @@ Read the full [Privacy Policy](./PRIVACY_POLICY.md). The extension is designed f
 
 ## 📸 Screenshots
 
+![Release 2.0](./screenshots/release-2.0.png)
+*Release 2.0: clean positive prompts, ready to copy.*
+
 ![Context menu](./screenshots/menu.jpg)
 *Right-click an image to find the extraction action.*
-
-![Popup Interface](./screenshots/popup.jpg)
-*The popup keeps the positive prompt easy to read and copy.*
-
-![Options Page](./screenshots/options.jpg)
-*Options for restricting image domains.*
 
 ## 🔧 Development
 
